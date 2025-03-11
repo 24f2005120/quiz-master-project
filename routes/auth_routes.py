@@ -27,3 +27,11 @@ def login():
             return redirect("/user")
         else:
             return redirect("/login")
+
+
+@auth_bp.route("/signin", methods=["GET", "POST"])
+def signin():
+    if request.method == "GET":
+        return render_template("/signin")
+    if request.method == "POST":
+        return
