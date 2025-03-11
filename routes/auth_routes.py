@@ -32,6 +32,6 @@ def login():
 @auth_bp.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "GET":
-        return render_template("signup")
+        return render_template("signup.html")
     if request.method == "POST":
         return
