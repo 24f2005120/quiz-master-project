@@ -1,13 +1,27 @@
 from datetime import date, time
 from typing import Annotated, List, Optional
 
+from flask_login import UserMixin
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database import db
+from models import db
 
 # handy custom types
 id_pk = Annotated[int, mapped_column(primary_key=True, autoincrement=True)]
+
+
+class User(db.Model, UserMixin):
+    user_id: Mapped[id_pk]
+    username: Mapped[str] = mapped_column(unique=True)
+    password: Mapped[str]
+
+    scores: Mapped[List["Score"]] = relationship(
+        back_populates="user", cascade="all,delete-orphan"
+    )
+
+    def get_id(self):
+        return self.user_id
 
 
 class Subject(db.Model):
@@ -16,14 +30,14 @@ class Subject(db.Model):
     description: Mapped[str]
 
     chapters: Mapped[List["Chapter"]] = relationship(
-        back_populates="chapter", cascade="all,delete-orphan"
+        back_populates="subject", cascade="all,delete-orphan"
     )
 
 
 class Chapter(db.Model):
     subject_id: Mapped[int] = mapped_column(ForeignKey("subject.subject_id"))
     chapter_id: Mapped[id_pk]
-    chapter_name: Mapped[str]
+    chapter_name: Mapped[str] = mapped_column(unique=True)
     description: Mapped[str]
 
     subject: Mapped["Subject"] = relationship(back_populates="chapters")
@@ -63,13 +77,3 @@ class Score(db.Model):
 
     quiz: Mapped["Quiz"] = relationship(back_populates="scores")
     user: Mapped["User"] = relationship(back_populates="scores")
-
-
-class User(db.Model):
-    user_id: Mapped[id_pk]
-    user_name: Mapped[str]
-    password: Mapped[str]
-
-    scores: Mapped[List["Score"]] = relationship(
-        back_populates="user", cascade="all,delete-orphan"
-    )

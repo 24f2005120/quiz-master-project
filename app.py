@@ -1,19 +1,26 @@
-from flask import Flask, render_template, request
+from flask import Flask
 
-import models
-from database import db
-
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-db.init_app(app)
-with app.app_context():
-    db.create_all()
+from models import db
+from routes import init_login_manager, init_routes
 
 
-@app.route("/", methods=["GET"])
-def home():
-    return "<h1>Hello World</h1>"
+def create_app():
+    app = Flask(__name__)
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SECRET_KEY"] = "we don't really need to care about security here so"
 
+    init_login_manager(app)
+
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+
+    return app
+
+
+app = create_app()
+init_routes(app)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0")
