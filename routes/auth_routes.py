@@ -29,8 +29,8 @@ def login():
             return redirect("/login")
 
 
-@auth_bp.route("/signin", methods=["GET", "POST"])
-def signin():
+@auth_bp.route("/signup", methods=["GET", "POST"])
+def signup():
     if request.method == "GET":
         return render_template("signup")
     if request.method == "POST":
