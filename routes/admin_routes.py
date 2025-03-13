@@ -3,8 +3,10 @@ from functools import wraps
 from flask import Blueprint, render_template, request
 from flask_login import current_user
 from flask_login.utils import current_app
+from sqlalchemy import select
 
 from models import User, db
+from models.models import Subject
 
 session = db.session
 
@@ -29,4 +31,12 @@ def admin_required(f):  # creates a decorater to check admin is logged in
 @admin_required
 def admin_home():
     if request.method == "GET":
-        return render_template("admin_home.html")
+        subjects = session.scalars(select(Subject))
+        return render_template("admin_home.html", subjects=subjects)
+
+
+@admin_bp.route("/create_subject", methods=["GET"])
+@admin_required
+def create_subject():
+    if request.method == "GET":
+        return render_template("create_subject.html")
