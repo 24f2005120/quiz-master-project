@@ -1,0 +1,4 @@
+{% extends "base.html" %} {% block title %} Home {% endblock %} {% block body %}
+<a href="{{url_for('auth.login')}}">Login</a>
+<a href="{{url_for('auth.signup')}}">Signup</a>
+{% endblock %}
