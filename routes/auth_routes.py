@@ -1,5 +1,5 @@
 from flask import Blueprint, redirect, render_template, request
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
 from sqlalchemy import select
 
 from models import User, db
@@ -65,3 +65,9 @@ def already_authenticated():
             return redirect("/admin")
         return redirect("/user")
     return "I am a teapot", 418
+
+@auth_bp.route("/logout", methods=["GET","POST"])
+def logout():
+    if current_user.is_authenticated:
+        logout_user()
+        return redirect("/")
