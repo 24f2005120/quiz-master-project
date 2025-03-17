@@ -31,10 +31,11 @@ def login():
 
         user = select_user(username)
         if user:
-            login_user(user)
             if user.password != password:
                 print("incorrect password error ")
                 return redirect(request.url)
+
+            login_user(user)
             if user.username == "admin":
                 return redirect("/admin")
             return redirect("/user")
