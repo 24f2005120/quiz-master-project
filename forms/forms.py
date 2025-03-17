@@ -1,6 +1,7 @@
-from wtforms import Form, StringField 
+from wtforms import Form, PasswordField, StringField
 
-class AuthForm(Form): # can be extended for different signup / login with class Signup(AuthForm)
-    username = StringField('Username')
-    password = StringField('Password')
 
+# can be extended for different signup / login with class Signup(AuthForm)
+class AuthForm(Form):
+    username = StringField("Username")
+    password = PasswordField("Password")

@@ -1,0 +1,5 @@
+<form action="{{request.url}}" method="POST">
+  {% for field in wtform %}
+  <div>{{field.name}} : {{field}}</div>
+  {% endfor %}
+</form>

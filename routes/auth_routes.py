@@ -2,6 +2,7 @@ from flask import Blueprint, redirect, render_template, request
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy import select
 
+from forms.forms import AuthForm
 from models import User, db
 
 session = db.session
@@ -15,10 +16,15 @@ def select_user(username):
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+
     if current_user.is_authenticated:
         return redirect("/redirect")
+
+    form = AuthForm()
+
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("login.html", form=form)
+
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -28,13 +34,13 @@ def login():
             login_user(user)
             if user.password != password:
                 print("incorrect password error ")
-                return redirect("/login")
+                return redirect(request.url)
             if user.username == "admin":
                 return redirect("/admin")
             return redirect("/user")
         else:
             print("user not found error")
-            return redirect("/login")
+            return redirect(request.url)
 
 
 @auth_bp.route("/signup", methods=["GET", "POST"])
@@ -60,13 +66,18 @@ def signup():
 
 @auth_bp.route("/redirect", methods=["GET", "POST"])
 def already_authenticated():
-    if not current_user.is_authenticated:
-        if current_user.username == "admin":
-            return redirect("/admin")
-        return redirect("/user")
-    return "I am a teapot", 418
 
-@auth_bp.route("/logout", methods=["GET","POST"])
+    if not current_user.is_authenticated:
+        print("this shouldn't have happened")
+        return redirect("login")
+
+    if current_user.username == "admin":
+        return redirect("/admin")
+
+    return redirect("/user")
+
+
+@auth_bp.route("/logout", methods=["GET", "POST"])
 def logout():
     if current_user.is_authenticated:
         logout_user()
