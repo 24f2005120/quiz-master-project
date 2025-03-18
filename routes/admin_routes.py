@@ -23,6 +23,17 @@ def require_admin():
 def admin_home():
     form = SubjectForm()
 
+    if request.method == "GET":
+        subjects = session.scalars(select(Subject)).all()
+        return render_template(
+            "admin_home.html",
+            subjects=subjects,
+            form=form,
+            modal_id="subjectModal",
+            title="Create New Subject",
+            action=url_for("admin.admin_home"),
+        )
+
     if request.method == "POST":
         # Validate and process the form submission
         if not form.validate_on_submit():
@@ -54,17 +65,6 @@ def admin_home():
         session.add(new_subject)
         session.commit()
         return jsonify({"message": "Subject created successfully!"})
-
-    # For GET requests, load subjects and render the template
-    subjects = session.scalars(select(Subject)).all()
-    return render_template(
-        "admin_home.html",
-        subjects=subjects,
-        form=form,
-        modal_id="subjectModal",
-        title="Create New Subject",
-        action=url_for("admin.admin_home"),
-    )
 
 
 @admin_bp.route("/create_subject", methods=["GET"])
