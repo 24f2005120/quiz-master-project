@@ -1,8 +1,0 @@
-{% for subject in subjects %}
-<div>
-  <h3>{{subject.subject_name}}</h3>
-  {% for chapter in subject.chapters %}
-  <div>{{chapter.chapter_id}}{{chapter.chapter_name}}</div>
-  {% endfor %}
-</div>
-{% endfor %}
