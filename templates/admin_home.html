@@ -3,9 +3,11 @@
 {% block body %}
 {% include "admin_nav.html" %}
 {% include "subjects.html" %}
+
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
       Create Subject
     </button>
-    {% include "modal.html" %}
+{% include "form_modal.html" %}
+
 {% endblock %}
 

@@ -19,10 +19,9 @@ def require_admin():
         return current_app.login_manager.unauthorized()
 
 
-@admin_bp.route("/", methods=["GET", "POST"])
+@admin_bp.route("/", methods=["GET"])
 def admin_home():
     form = SubjectForm()
-
     if request.method == "GET":
         subjects = session.scalars(select(Subject)).all()
         return render_template(
@@ -31,9 +30,13 @@ def admin_home():
             form=form,
             modal_id="subjectModal",
             title="Create New Subject",
-            action=url_for("admin.admin_home"),
+            action=url_for("admin.create_subject"),
         )
 
+
+@admin_bp.route("/create_subject", methods=["POST"])
+def create_subject():
+    form = SubjectForm()
     if request.method == "POST":
         # Validate and process the form submission
         if not form.validate_on_submit():
@@ -65,9 +68,3 @@ def admin_home():
         session.add(new_subject)
         session.commit()
         return jsonify({"message": "Subject created successfully!"})
-
-
-@admin_bp.route("/create_subject", methods=["GET"])
-def create_subject():
-    if request.method == "GET":
-        return render_template("create_subject.html")
