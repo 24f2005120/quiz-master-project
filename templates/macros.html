@@ -1,0 +1,38 @@
+{% macro modal_form(modal_id, title, action, form) %}
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="{{ modal_id }}Label">{{ title }}</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="{{ modal_id }}Form" action="{{ action }}" method="POST">
+          {{ form.hidden_tag() }} {# CSRF Token #} {% for field in form if
+          field.widget.input_type != 'hidden' %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ field.id }}"
+              >{{ field.label.text }}</label
+            >
+            {{ field(class="form-control") }} {% if field.errors %}
+            <div class="text-danger">
+              {% for error in field.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          <button type="submit" class="btn btn-success">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}

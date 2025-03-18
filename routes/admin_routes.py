@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, render_template, request, url_for
+from flask import Blueprint, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user
 from flask_login.utils import current_app
 from sqlalchemy import select
@@ -21,16 +21,13 @@ def require_admin():
 
 @admin_bp.route("/", methods=["GET"])
 def admin_home():
-    form = SubjectForm()
+    subject_form = SubjectForm()
     if request.method == "GET":
         subjects = session.scalars(select(Subject)).all()
         return render_template(
             "admin_home.html",
             subjects=subjects,
-            form=form,
-            modal_id="subjectModal",
-            title="Create New Subject",
-            action=url_for("admin.create_subject"),
+            subject_form=subject_form
         )
 
 
@@ -56,7 +53,7 @@ def create_subject():
                 jsonify(
                     {
                         "errors": {
-                            "subject_name": [
+                            "Subject Name": [
                                 "Subject already exists, please use a different Subject Name"
                             ]
                         }

@@ -4,10 +4,11 @@
 {% include "admin_nav.html" %}
 {% include "subjects.html" %}
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{ modal_id }}">
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSubjectModal">
       Create Subject
     </button>
-{% include "form_modal.html" %}
+{% import "macros.html" as macros %}
+{{ macros.modal_form("createSubjectModal", "Create New Subject", url_for('admin.create_subject'), subject_form) }}
 
 {% endblock %}
 
