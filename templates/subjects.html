@@ -5,6 +5,4 @@
   <div>{{chapter.chapter_id}}{{chapter.chapter_name}}</div>
   {% endfor %}
 </div>
-{% endfor %} {% if current_user.username=="admin" %}
-<a href="{{url_for('admin.create_subject')}}">+ Create New Subject </a>
-{% endif %}
+{% endfor %}

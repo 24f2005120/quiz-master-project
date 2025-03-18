@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, jsonify, render_template, request, url_for
 from flask_login import current_user
 from flask_login.utils import current_app
 from sqlalchemy import select
 
+from forms import SubjectForm
 from models import db
 from models.models import Subject
 
@@ -20,9 +21,50 @@ def require_admin():
 
 @admin_bp.route("/", methods=["GET", "POST"])
 def admin_home():
-    if request.method == "GET":
-        subjects = session.scalars(select(Subject))
-        return render_template("admin_home.html", subjects=subjects)
+    form = SubjectForm()
+
+    if request.method == "POST":
+        # Validate and process the form submission
+        if not form.validate_on_submit():
+            return (
+                jsonify({"errors": form.errors}),
+                400,
+            )  # Return errors as JSON for AJAX handling
+
+        new_subject = Subject()
+        form.populate_obj(new_subject)
+
+        # make sure no duplicate subs
+        if session.scalar(
+            select(Subject).where(Subject.subject_name == new_subject.subject_name)
+        ):
+            return (
+                jsonify(
+                    {
+                        "errors": {
+                            "subject_name": [
+                                "Subject already exists, please use a different Subject Name"
+                            ]
+                        }
+                    }
+                ),
+                400,
+            )
+
+        session.add(new_subject)
+        session.commit()
+        return jsonify({"message": "Subject created successfully!"})
+
+    # For GET requests, load subjects and render the template
+    subjects = session.scalars(select(Subject)).all()
+    return render_template(
+        "admin_home.html",
+        subjects=subjects,
+        form=form,
+        modal_id="subjectModal",
+        title="Create New Subject",
+        action=url_for("admin.admin_home"),
+    )
 
 
 @admin_bp.route("/create_subject", methods=["GET"])
