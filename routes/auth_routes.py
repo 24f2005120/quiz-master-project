@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, render_template, request
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy import select
 
-from forms.forms import AuthForm
+from forms import AuthForm
 from models import User, db
 
 session = db.session
@@ -20,45 +20,46 @@ def login():
     if current_user.is_authenticated:
         return redirect("/redirect")
 
-    form = AuthForm()
+    form = AuthForm(request.form)
 
     if request.method == "GET":
         return render_template("login.html", form=form)
 
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+    if request.method == "POST" and form.validate():
+        user = select_user(form.data["username"])
 
-        user = select_user(username)
-        if user:
-            if user.password != password:
-                print("incorrect password error ")
-                return redirect(request.url)
-
-            login_user(user)
-            if user.username == "admin":
-                return redirect("/admin")
-            return redirect("/user")
-        else:
+        if not user:
             print("user not found error")
             return redirect(request.url)
+
+        if user.password != form.data["password"]:
+            print("incorrect password error ")
+            return redirect(request.url)
+
+        login_user(user)
+        if user.username == "admin":
+            return redirect("/admin")
+
+        return redirect("/user")
 
 
 @auth_bp.route("/signup", methods=["GET", "POST"])
 def signup():
     if current_user.is_authenticated:
         return redirect("/redirect")
-    if request.method == "GET":
-        return render_template("signup.html")
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
 
-        if select_user(username):
+    form = AuthForm(request.form)
+
+    if request.method == "GET":
+        return render_template("signup.html", form=form)
+
+    if request.method == "POST" and form.validate():
+
+        if select_user(form.data["username"]):
             print("user already exists error")
             return redirect("/signup")
 
-        user = User(username=username, password=password)
+        user = User(**form.data)
         session.add(user)
         session.commit()
         login_user(user)
