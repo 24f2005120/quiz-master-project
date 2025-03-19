@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 
 from models import db
 from routes import init_login_manager, init_routes
@@ -20,6 +20,13 @@ def create_app():
 
 
 app = create_app()
+
+
+@app.template_global()
+def is_active(page_name):  # small function to make the nav_bar code better
+    return "active" if request.endpoint == page_name else ""
+
+
 init_routes(app)
 
 if __name__ == "__main__":

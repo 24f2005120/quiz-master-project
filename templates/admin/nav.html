@@ -1,4 +1,41 @@
-<nav>
-  <a href="/admin">Home</a>
-  <a href="/logout">Logout</a>
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Quizzer</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarColor01"
+      aria-controls="navbarColor01"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a
+            class="nav-link {{ is_active('admin.admin_home') }}"
+            href="{{ url_for('admin.admin_home') }}"
+            >Home</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link">Subjects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link">Chapters</a>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input
+          class="form-control me-sm-2"
+          type="search"
+          placeholder="Search"
+        />
+        <button class="btn btn-light my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
 </nav>

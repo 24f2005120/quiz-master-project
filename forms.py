@@ -12,3 +12,8 @@ class AuthForm(FlaskForm):
 class SubjectForm(FlaskForm):
     subject_name = StringField("Subject Name", validators=[DataRequired()])
     description = StringField("Description")
+
+
+class ChapterForm(FlaskForm):
+    chapter_name = StringField("Chapter Name", validators=[DataRequired()])
+    description = StringField("Description")

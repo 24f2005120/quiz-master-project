@@ -37,7 +37,7 @@ class Subject(db.Model):
 class Chapter(db.Model):
     subject_id: Mapped[int] = mapped_column(ForeignKey("subject.subject_id"))
     chapter_id: Mapped[id_pk]
-    chapter_name: Mapped[str] = mapped_column(unique=True)
+    chapter_name: Mapped[str]
     description: Mapped[str]
 
     subject: Mapped["Subject"] = relationship(back_populates="chapters")

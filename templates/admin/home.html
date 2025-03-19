@@ -2,13 +2,33 @@
 {% block title %} Admin Dashboard {% endblock %} 
 {% block body %}
 {% include "admin/nav.html" %}
-{% include "admin/subjects_view.html" %}
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSubjectModal">
+<div class="container mt-4">
+    {% include "admin/subjects_view.html" %}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSubjectModal">
       Create Subject
     </button>
-{% import "macros.html" as macros %}
-{{ macros.modal_form("createSubjectModal", "Create New Subject", url_for('admin.create_subject'), subject_form) }}
+</div>
+
+<script>
+  // Get the delete URLs dynamically
+
+  function handleDelete(url) {
+    if (!confirm("Are you sure you want to delete this?")) return;
+
+    fetch(url, { method: "DELETE" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message) {
+          showToast(data.message, "success");
+          setTimeout(() => window.location.reload(), 300);
+        } else if (data.errors) {
+          showToast(data.errors, "error");
+        }
+      })
+      .catch(() => showToast("Error deleting item", "danger"));
+  }
+</script>
 
 {% endblock %}
 

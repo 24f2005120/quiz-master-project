@@ -4,7 +4,7 @@ from flask_login import current_user
 from flask_login.utils import current_app
 from sqlalchemy import select
 
-from forms import SubjectForm
+from forms import ChapterForm, SubjectForm
 from models import db
 from models.models import Chapter, Subject
 
@@ -23,10 +23,11 @@ def require_admin():
 @admin_bp.route("/", methods=["GET"])
 def admin_home():
     subject_form = SubjectForm()
+    chapter_form = ChapterForm()
     if request.method == "GET":
         subjects = session.scalars(select(Subject)).all()
         return render_template(
-            "admin/home.html", subjects=subjects, subject_form=subject_form
+            "admin/home.html", subjects=subjects, subject_form=subject_form, chapter_form=chapter_form
         )
 
 
@@ -72,6 +73,22 @@ def delete_subject(subject_id):
     session.commit()
     return jsonify({"message": f"Succesfully deleted subject {subject.subject_name}"})
 
+@admin_bp.route("<int:subject_id>/chapter_id", methods=["POST"])
+def create_chapter(subject_id):
+    subject = session.scalar(select(Subject).where(Subject.subject_id == subject_id))
+    if not subject:
+        return jsonify({"errors":{"subject":["subject not found"]}}),400
+    form = ChapterForm()
+    if not form.validate_on_submit():
+        return (
+            jsonify({"errors": form.errors}),
+            400,
+        )  # Return errors as JSON for AJAX handling
+    new_chapter = Chapter(subject=subject)
+    form.populate_obj(new_chapter)
+    session.add(new_chapter)
+    session.commit()
+    return jsonify({"message":"Chapter created successfully"})
 
 @admin_bp.route("delete_chapter/<chapter_id>", methods=["DELETE"])
 def delete_chapter(chapter_id):
