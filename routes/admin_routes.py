@@ -27,7 +27,10 @@ def admin_home():
     if request.method == "GET":
         subjects = session.scalars(select(Subject)).all()
         return render_template(
-            "admin/home.html", subjects=subjects, subject_form=subject_form, chapter_form=chapter_form
+            "admin/home.html",
+            subjects=subjects,
+            subject_form=subject_form,
+            chapter_form=chapter_form,
         )
 
 
@@ -73,11 +76,12 @@ def delete_subject(subject_id):
     session.commit()
     return jsonify({"message": f"Succesfully deleted subject {subject.subject_name}"})
 
-@admin_bp.route("<int:subject_id>/chapter_id", methods=["POST"])
+
+@admin_bp.route("<int:subject_id>/create_chapter", methods=["POST"])
 def create_chapter(subject_id):
     subject = session.scalar(select(Subject).where(Subject.subject_id == subject_id))
     if not subject:
-        return jsonify({"errors":{"subject":["subject not found"]}}),400
+        return jsonify({"errors": {"subject": ["subject not found"]}}), 400
     form = ChapterForm()
     if not form.validate_on_submit():
         return (
@@ -88,7 +92,8 @@ def create_chapter(subject_id):
     form.populate_obj(new_chapter)
     session.add(new_chapter)
     session.commit()
-    return jsonify({"message":"Chapter created successfully"})
+    return jsonify({"message": "Chapter created successfully"})
+
 
 @admin_bp.route("delete_chapter/<chapter_id>", methods=["DELETE"])
 def delete_chapter(chapter_id):

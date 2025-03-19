@@ -4,11 +4,94 @@
 {% include "admin/nav.html" %}
 
 <div class="container mt-4">
-    {% include "admin/subjects_view.html" %}
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2 class="mb-3">Subjects</h2>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSubjectModal">
       Create Subject
     </button>
+
+  </div>
+{% if not subjects %}
+<p class="text-muted">No chapters added yet.</p>
+{% endif %} 
+<div class="row row-cols-1 row-cols-md-2">
+  {% for subject in subjects %}
+  <div class="col">
+    <div class="card mb-3 shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">{{ subject.subject_name }}</h4>
+        <div>
+          <button
+            class="btn btn-primary"
+            onclick="editSubject({{ subject.subject_id }}, {{ subject.subject_name}})"
+          >
+            <i class="bi bi-pencil-square"></i>
+          </button>
+
+          <button
+            class="btn btn-danger btn"
+            onclick="handleDelete('{{ url_for('admin.delete_subject', subject_id=subject.subject_id) }}')"
+          >
+            <i class="bi bi-trash"></i> 
+          </button>
+        </div>
+      </div>
+      <!--chapters-->
+      <div class="card-body">
+        {% if subject.chapters %}
+        <ul class="list-group">
+          {% for chapter in subject.chapters %}
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            <span>
+              <strong>{{ chapter.chapter_id }}</strong> - {{ chapter.chapter_name }}
+            </span>
+            <button
+              class="btn btn-outline-danger btn-sm"
+              onclick="deleteChapter({{ chapter.id }})"
+            >
+              <!-- <i class="bi bi-x-circle"></i>  -->
+              Remove
+            </button>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No chapters added yet.</p>
+        {% endif %}
+        <div class="mt-2 d-grid gap-1">
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#createChapterModal"
+          onclick="updateModalFormAction({{ subject.subject_id }}, 'createChapterModal')"
+        >
+          Add Chapter
+        </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
 </div>
+{% import "macros.html" as macros %} {{ macros.modal_form("createSubjectModal",
+"Create New Subject", url_for('admin.create_subject'), subject_form) }} {{
+macros.modal_form("createChapterModal", "Create New Chapter",
+url_for('admin.create_chapter', subject_id=0), chapter_form) }}
+
+<script>
+  // this generates the form action for the createChapterModal dynamically
+  function updateModalFormAction(subjectId, modalId) {
+    const createChapterUrlTemplate =
+      "{{ url_for('admin.create_chapter', subject_id=0) }}";
+    // Replace "0" in the template with the actual subjectId
+    const newAction = createChapterUrlTemplate.replace("0", subjectId);
+    document.getElementById(modalId + "Form").action = newAction;
+  }
+</script>
+
 
 <script>
   // Get the delete URLs dynamically
