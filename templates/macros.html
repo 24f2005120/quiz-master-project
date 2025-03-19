@@ -1,4 +1,5 @@
-{% macro modal_form(modal_id, title, action, form) %}
+{% macro modal_form(modal_id, title, action, form, parent_id=None,
+parent_class=None) %}
 <div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">

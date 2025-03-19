@@ -69,12 +69,28 @@ def create_subject():
     return jsonify({"message": "Subject created successfully!"})
 
 
+def select_subject(subject_id):
+    return session.scalar(select(Subject).where(Subject.subject_id == subject_id))
+
 @admin_bp.route("delete_subject/<int:subject_id>", methods=["DELETE", "GET"])
 def delete_subject(subject_id):
-    subject = session.scalar(select(Subject).where(Subject.subject_id == subject_id))
+    subject = select_subject(subject_id)
     session.delete(subject)
     session.commit()
     return jsonify({"message": f"Succesfully deleted subject {subject.subject_name}"})
+
+@admin_bp.route("edit_subject/<int:subject_id>", methods=["PUT", "POST"])
+def edit_subject(subject_id):
+    subject = select_subject(subject_id)
+    form = SubjectForm()
+    if not form.validate_on_submit():
+        return (
+            jsonify({"errors":form.errors}),
+            400,
+        )
+    form.populate_obj(subject)
+    session.commit()
+    return jsonify({"message":"Subject Edited Successfully"})
 
 
 @admin_bp.route("<int:subject_id>/create_chapter", methods=["POST"])

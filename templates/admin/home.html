@@ -12,7 +12,7 @@
 
   </div>
 {% if not subjects %}
-<p class="text-muted">No chapters added yet.</p>
+<p class="text-muted">No Subjects added yet.</p>
 {% endif %} 
 <div class="row row-cols-1 row-cols-md-2">
   {% for subject in subjects %}
@@ -22,9 +22,22 @@
         <h4 class="mb-0">{{ subject.subject_name }}</h4>
         <div>
           <button
+            type="button" 
             class="btn btn-primary"
-            onclick="editSubject({{ subject.subject_id }}, {{ subject.subject_name}})"
-          >
+            data-bs-toggle="modal"
+            data-bs-target="#editSubjectModal"
+            onclick='updateModalFormAction(
+                    "{{ url_for("admin.edit_subject", subject_id=0) }}",
+                    {{ subject.subject_id }}, 
+                    "editSubjectModal",
+                    {{ 
+                      {
+                      "subject_name": subject.subject_name,
+                      "description": subject.description
+                      }
+                    }}
+                  )'          
+            >
             <i class="bi bi-pencil-square"></i>
           </button>
 
@@ -36,8 +49,10 @@
           </button>
         </div>
       </div>
-      <!--chapters-->
+
       <div class="card-body">
+        <p class="text-muted">{{subject.description}}</p>
+        <!--chapters-->
         {% if subject.chapters %}
         <ul class="list-group">
           {% for chapter in subject.chapters %}
@@ -66,7 +81,10 @@
           class="btn btn-primary"
           data-bs-toggle="modal"
           data-bs-target="#createChapterModal"
-          onclick="updateModalFormAction({{ subject.subject_id }}, 'createChapterModal')"
+          onclick="updateModalFormAction(
+          '{{url_for('admin.create_chapter', subject_id=0)}}', 
+          {{ subject.subject_id }},
+          'createChapterModal')"
         >
           Add Chapter
         </button>
@@ -76,22 +94,39 @@
   </div>
   {% endfor %}
 </div>
-{% import "macros.html" as macros %} {{ macros.modal_form("createSubjectModal",
-"Create New Subject", url_for('admin.create_subject'), subject_form) }} {{
-macros.modal_form("createChapterModal", "Create New Chapter",
-url_for('admin.create_chapter', subject_id=0), chapter_form) }}
+{% import "macros.html" as macros %} 
+{{ macros.modal_form("createSubjectModal", "Create New Subject", url_for('admin.create_subject'), subject_form) }} 
+{{ macros.modal_form("editSubjectModal", "Edit Subject", url_for('admin.edit_subject', subject_id=0), subject_form )}}
+{{ macros.modal_form("createChapterModal", "Create New Chapter", url_for('admin.create_chapter', subject_id=0), chapter_form) }}
 
 <script>
-  // this generates the form action for the createChapterModal dynamically
-  function updateModalFormAction(subjectId, modalId) {
-    const createChapterUrlTemplate =
-      "{{ url_for('admin.create_chapter', subject_id=0) }}";
-    // Replace "0" in the template with the actual subjectId
-    const newAction = createChapterUrlTemplate.replace("0", subjectId);
-    document.getElementById(modalId + "Form").action = newAction;
+  function updateModalFormAction(actionUrlTemplate, itemId, modalId, data = {}) {
+    
+    // Replace "0" in the URL template with the actual item ID
+    const newAction = actionUrlTemplate.replace("0", itemId);
+
+    // Update form action
+    const form = document.getElementById(modalId + "Form");
+    if (!form) {
+      console.error("Form not found!");
+      return;
+    }
+    
+    form.action = newAction;
+
+    // Populate form fields
+    Object.keys(data).forEach((key) => {
+      let inputField = form.querySelector(`[name="${key}"]`); // Select field by name
+      console.log("Updating Field:", key, "with Value:", data[key]);
+
+      if (inputField) {
+        inputField.value = data[key] || "";
+      } else {
+        console.warn("Field not found:", key);
+      }
+    });
   }
 </script>
-
 
 <script>
   // Get the delete URLs dynamically
