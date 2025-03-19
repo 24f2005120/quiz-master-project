@@ -72,6 +72,7 @@ def create_subject():
 def select_subject(subject_id):
     return session.scalar(select(Subject).where(Subject.subject_id == subject_id))
 
+
 @admin_bp.route("delete_subject/<int:subject_id>", methods=["DELETE", "GET"])
 def delete_subject(subject_id):
     subject = select_subject(subject_id)
@@ -79,18 +80,19 @@ def delete_subject(subject_id):
     session.commit()
     return jsonify({"message": f"Succesfully deleted subject {subject.subject_name}"})
 
+
 @admin_bp.route("edit_subject/<int:subject_id>", methods=["PUT", "POST"])
 def edit_subject(subject_id):
     subject = select_subject(subject_id)
     form = SubjectForm()
     if not form.validate_on_submit():
         return (
-            jsonify({"errors":form.errors}),
+            jsonify({"errors": form.errors}),
             400,
         )
     form.populate_obj(subject)
     session.commit()
-    return jsonify({"message":"Subject Edited Successfully"})
+    return jsonify({"message": "Subject Edited Successfully"})
 
 
 @admin_bp.route("<int:subject_id>/create_chapter", methods=["POST"])
@@ -119,9 +121,35 @@ def create_chapter(subject_id):
     return jsonify({"message": "Chapter created successfully"})
 
 
-@admin_bp.route("<int:subject_id>/delete_chapter/<int:chapter_id>", methods=["DELETE", "GET"])
-def delete_chapter(subject_id,chapter_id):
-    chapter = session.scalar(select(Chapter).where(Chapter.chapter_id == chapter_id and Chapter.subject_id==subject_id))
+@admin_bp.route(
+    "<int:subject_id>/delete_chapter/<int:chapter_id>", methods=["DELETE", "GET"]
+)
+def delete_chapter(subject_id, chapter_id):
+    chapter = session.scalar(
+        select(Chapter).where(
+            Chapter.chapter_id == chapter_id and Chapter.subject_id == subject_id
+        )
+    )
     session.delete(chapter)
     session.commit()
     return jsonify({"message": f"Succesfully deleted subject {chapter.chapter_name}"})
+
+
+@admin_bp.route(
+    "<int:subject_id>/edit_chapter/<int:chapter_id>", methods=["POST", "PUT"]
+)
+def edit_chapter(subject_id, chapter_id):
+    chapter = session.scalar(
+        select(Chapter).where(
+            Chapter.chapter_id == chapter_id and Chapter.subject_id == subject_id
+        )
+    )
+    form = ChapterForm()
+    if not form.validate_on_submit():
+        return (
+            jsonify({"errors": form.errors}),
+            400,
+        )
+    form.populate_obj(chapter)
+    session.commit()
+    return jsonify({"message": "Subject Edited Successfully"})

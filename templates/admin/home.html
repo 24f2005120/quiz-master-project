@@ -89,21 +89,46 @@
               <p class="text-muted">No quizzes available for this chapter.</p>
               {% endif %}
 
+              <div class="btn-group" role="group" aria-label="chapter_buttons">
+
               <!-- Add Quiz Button -->
               <button
                 class="btn btn-outline-primary btn-sm mt-2"
-                onclick="addQuiz({{ chapter.chapter_id }})"
+                data-bs-toggle="modal"
+                data-bs-target="#createQuizModal"
+
               >
                 + Add Quiz
               </button>
+
+              <button
+              type="button" 
+              class="btn btn-outline-primary btn-sm mt-2"
+              data-bs-toggle="modal"
+              data-bs-target="#editChapterModal"
+              onclick='updateModalFormAction(
+                      "{{ url_for("admin.edit_chapter", subject_id=subject.subject_id, chapter_id=0) }}",
+                      {{ chapter.chapter_id }}, 
+                      "editChapterModal",
+                      {{ 
+                        {
+                        "chapter_name": chapter.chapter_name,
+                        "description": chapter.description
+                        }
+                      }}
+                    )'          
+              >
+              Rename Chapter
+            </button>
 
               <!-- Remove Chapter Button -->
               <button
                 class="btn btn-outline-danger btn-sm mt-2"
                 onclick="handleDelete('{{url_for('admin.delete_chapter', subject_id=subject.subject_id, chapter_id=chapter.chapter_id)}}')"
               >
-                Remove Chapter
+                Delete Chapter
               </button>
+              </div>
       </div>
     </div>
   </div>
@@ -136,6 +161,7 @@
 {{ macros.modal_form("createSubjectModal", "Create New Subject", url_for('admin.create_subject'), subject_form) }} 
 {{ macros.modal_form("editSubjectModal", "Edit Subject", url_for('admin.edit_subject', subject_id=0), subject_form )}}
 {{ macros.modal_form("createChapterModal", "Create New Chapter", url_for('admin.create_chapter', subject_id=0), chapter_form) }}
+{{ macros.modal_form("editChapterModal", "Edit Chapter", url_for('admin.edit_subject', subject_id=0,chapter_id=0), chapter_form )}}
 
 <script>
   function updateModalFormAction(actionUrlTemplate, itemId, modalId, data = {}) {
