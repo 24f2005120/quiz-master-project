@@ -67,9 +67,9 @@ url_for('admin.create_chapter', subject_id=0), chapter_form) }}
 
 <script>
   // this generates the form action for the createChapterModal dynamically
-  const createChapterUrlTemplate =
-    "{{ url_for('admin.create_chapter', subject_id=0) }}";
   function updateModalFormAction(subjectId, modalId) {
+    const createChapterUrlTemplate =
+      "{{ url_for('admin.create_chapter', subject_id=0) }}";
     // Replace "0" in the template with the actual subjectId
     const newAction = createChapterUrlTemplate.replace("0", subjectId);
     document.getElementById(modalId + "Form").action = newAction;

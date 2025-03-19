@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Format error messages
             let errorMessage = '';
             Object.keys(data.errors).forEach((field) => {
-              errorMessage += `${field}: ${data.errors[field].join(', ')}<br>`;
+              errorMessage += `${field}: ${data.errors[field].join(', ')}`;
             });
 
             // Show the error toast
