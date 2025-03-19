@@ -2,7 +2,7 @@ from flask import (Blueprint, jsonify, redirect, render_template, request,
                    url_for)
 from flask_login import current_user
 from flask_login.utils import current_app
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from forms import ChapterForm, SubjectForm
 from models import db
@@ -88,7 +88,15 @@ def create_chapter(subject_id):
             jsonify({"errors": form.errors}),
             400,
         )  # Return errors as JSON for AJAX handling
-    new_chapter = Chapter(subject=subject)
+
+    # since composite keys have to be incremented manually in sqlite
+    max_number = session.scalar(
+        select(func.max(Chapter.chapter_id)).where(Chapter.subject_id == subject_id)
+    )
+    # If there are no chapters yet, max_number will be None. Start at 1.
+    chapter_number = (max_number or 0) + 1
+
+    new_chapter = Chapter(subject_id=subject_id, chapter_id=chapter_number)
     form.populate_obj(new_chapter)
     session.add(new_chapter)
     session.commit()

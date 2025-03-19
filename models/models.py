@@ -35,8 +35,10 @@ class Subject(db.Model):
 
 
 class Chapter(db.Model):
-    subject_id: Mapped[int] = mapped_column(ForeignKey("subject.subject_id"))
-    chapter_id: Mapped[id_pk]
+    subject_id: Mapped[int] = mapped_column(
+        ForeignKey("subject.subject_id"), primary_key=True
+    )
+    chapter_id: Mapped[int] = mapped_column(primary_key=True)
     chapter_name: Mapped[str]
     description: Mapped[str]
 
