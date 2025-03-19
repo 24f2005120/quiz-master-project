@@ -119,9 +119,9 @@ def create_chapter(subject_id):
     return jsonify({"message": "Chapter created successfully"})
 
 
-@admin_bp.route("delete_chapter/<chapter_id>", methods=["DELETE"])
-def delete_chapter(chapter_id):
-    chapter = session.scalar(select(Chapter).where(Chapter.chapter_id == chapter_id))
+@admin_bp.route("<int:subject_id>/delete_chapter/<int:chapter_id>", methods=["DELETE", "GET"])
+def delete_chapter(subject_id,chapter_id):
+    chapter = session.scalar(select(Chapter).where(Chapter.chapter_id == chapter_id and Chapter.subject_id==subject_id))
     session.delete(chapter)
     session.commit()
     return jsonify({"message": f"Succesfully deleted subject {chapter.chapter_name}"})
