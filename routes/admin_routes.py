@@ -4,7 +4,7 @@ from flask_login import current_user
 from flask_login.utils import current_app
 from sqlalchemy import func, select
 
-from forms import ChapterForm, QuizForm, SubjectForm
+from forms import ChapterForm, QuestionForm, QuizForm, SubjectForm
 from models import db
 from models.models import Chapter, Quiz, Subject
 
@@ -200,7 +200,7 @@ def edit_quiz(quiz_id):
         return jsonify({"message":"Succesfully edited quiz details"})
 
     return render_template(
-        "admin/quiz.html", quiz=quiz, quiz_form=QuizForm(), question_form=QuizForm()
+        "admin/quiz.html", quiz=quiz, quiz_form=QuizForm(), question_form=QuestionForm()
     )
 
 

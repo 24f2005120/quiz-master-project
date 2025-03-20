@@ -76,6 +76,20 @@ class Question(db.Model):
     marks: Mapped[int]
 
     quiz: Mapped["Quiz"] = relationship(back_populates="questions")
+    options: Mapped[List["Option"]] = relationship(
+        back_populates="question", cascade="all,delete-orphan"
+    )
+
+
+class Option(db.Model):
+    option_id: Mapped[id_pk]
+    question_id: Mapped[int] = mapped_column(ForeignKey("question.question_id"))
+    text: Mapped[str]
+    is_correct: Mapped[bool] = mapped_column(
+        default=False
+    )  # Assuming default is not correct
+
+    question: Mapped["Question"] = relationship(back_populates="options")
 
 
 class Score(db.Model):

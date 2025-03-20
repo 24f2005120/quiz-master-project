@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import (DateField, IntegerField, PasswordField, StringField,
-                     SubmitField)
+from wtforms import (BooleanField, DateField, FieldList, FormField,
+                     IntegerField, PasswordField, SelectField, StringField,
+                     SubmitField, TextAreaField)
 from wtforms.validators import DataRequired, Optional
 
 
@@ -12,16 +13,32 @@ class AuthForm(FlaskForm):
 
 class SubjectForm(FlaskForm):
     subject_name = StringField("Subject Name", validators=[DataRequired()])
-    description = StringField("Description")
+    description = TextAreaField("Description")
 
 
 class ChapterForm(FlaskForm):
     chapter_name = StringField("Chapter Name", validators=[DataRequired()])
-    description = StringField("Description")
+    description = TextAreaField("Description")
 
 
 class QuizForm(FlaskForm):
     quiz_name = StringField("Quiz Name", validators=[DataRequired()])
     date = DateField("Date", validators=[Optional()])
     duration = IntegerField("Duration (minutes)", validators=[Optional()])
-    remarks = StringField("Remarks")
+    remarks = TextAreaField("Remarks")
+
+
+class OptionForm(FlaskForm):
+    text = TextAreaField("Option Text", validators=[DataRequired()])
+    is_correct = BooleanField("Is Correct")
+
+
+class QuestionForm(FlaskForm):
+    text = TextAreaField("Question Text", validators=[DataRequired()])
+    marks = IntegerField("Marks", validators=[DataRequired()])
+    options = FieldList(
+        FormField(OptionForm),
+        min_entries=1,
+        max_entries=10, 
+        label="Options",
+    )
