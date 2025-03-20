@@ -14,8 +14,65 @@ parent_class=None) %}
       </div>
       <div class="modal-body">
         <form id="{{ modal_id }}Form" action="{{ action }}" method="POST">
-          {{ form.hidden_tag() }} {# CSRF Token #} {% for field in form if
-          field.widget.input_type != 'hidden' %}
+          {{ form.hidden_tag() }} {# CSRF Token #} {% if form.__class__.__name__
+          == 'QuestionForm' %} {# Check if it's a QuestionForm #} {% for field
+          in form if field.widget.input_type != 'hidden' and field.name !=
+          'options' %} {# Render non-hidden fields EXCEPT 'options' #}
+          <div class="mb-3">
+            <label class="form-label" for="{{ field.id }}"
+              >{{ field.label.text }}</label
+            >
+            {{ field(class="form-control") }} {% if field.errors %}
+            <div class="text-danger">
+              {% for error in field.errors %}
+              <small>{{ error }}</small>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %} {# Render Options FieldList #}
+          <div id="options-container" class="row">
+            {% for subform in form.options %}
+            <div class="option-group col-md-6">
+              {{ subform.hidden_tag() }}
+              <div class="mb-3">
+                <h6 class="mt-3">Option {{ loop.index }}</h6>
+                {{ subform.text(class="form-control") }} {% if
+                subform.text.errors %}
+                <div class="text-danger">
+                  {% for error in subform.text.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              <div class="form-check mb-3">
+                {{ subform.is_correct(class="form-check-input") }} {{
+                subform.is_correct.label(class="form-check-label") }} {% if
+                subform.is_correct.errors %}
+                <div class="text-danger">
+                  {% for error in subform.is_correct.errors %}
+                  <small>{{ error }}</small>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <button
+            type="button"
+            id="add-option-btn"
+            class="btn btn-secondary btn-sm mt-2"
+          >
+            + Add Option
+          </button>
+          <button type="submit" class="btn btn-success btn-sm mt-2">
+            Submit
+          </button>
+          {% else %} {# For other forms (not QuestionForm), render fields as
+          before #} {% for field in form if field.widget.input_type != 'hidden'
+          %}
           <div class="mb-3">
             <label class="form-label" for="{{ field.id }}"
               >{{ field.label.text }}</label
@@ -29,8 +86,8 @@ parent_class=None) %}
             {% endif %}
           </div>
           {% endfor %}
-
-          <button type="submit" class="btn btn-success">Submit</button>
+          <button type="submit" class="btn btn-success btn-sm">Submit</button>
+          {% endif %} {# End of QuestionForm check #}
         </form>
       </div>
     </div>

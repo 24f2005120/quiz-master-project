@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 
 from forms import ChapterForm, QuestionForm, QuizForm, SubjectForm
 from models import db
-from models.models import Chapter, Quiz, Subject
+from models.models import Chapter, Option, Question, Quiz, Subject
 
 session = db.session
 
@@ -208,12 +208,88 @@ def edit_quiz(quiz_id):
 def quizzes():
     pass
 
+def select_question(question_id):
+    return session.scalar(select(Question).where(Question.question_id==question_id))
 
 @admin_bp.route("quiz/<int:quiz_id>/create_question", methods=["POST", "GET"])
 def create_question(quiz_id):
-    pass
+    quiz = select_quiz(quiz_id)
+    if not quiz:
+        return jsonify({"errors": [f"Quiz with quiz_id {quiz_id} not found"]}), 404
+
+    if request.method == "POST":
+        form = QuestionForm(request.form) # Pass request.form here
+        if not form.validate_on_submit():
+            return jsonify({"errors": form.errors}), 400
+
+        question = Question(quiz_id=quiz_id)
+        question.text = form.text.data
+        question.marks = form.marks.data
+        session.add(question)
+        session.flush() # Flush to get question_id
+
+        # Clear existing options and add new ones - Manual Assignment (Correct)
+        question.options = [] # Clear existing options
+        for option_form in form.options:
+            if option_form.text.data:
+                option = Option(
+                    question_id=question.question_id, # Set question_id here
+                    text=option_form.text.data,
+                    is_correct=option_form.is_correct.data
+                )
+                db.session.add(option)
+
+        db.session.commit()
+        return jsonify({"message": "Successfully updated question"})    # GET request should not be directly accessed, modal form is used.
+
+    return jsonify({"errors": ["GET method not allowed for this route"]}), 405
 
 
-@admin_bp.route("quiz/<int:quiz_id>/<int:question_id>")
+@admin_bp.route("quiz/<int:quiz_id>/question/<int:question_id>", methods=["GET", "POST", "DELETE"])
 def edit_question(quiz_id, question_id):
-    pass
+    quiz = select_quiz(quiz_id) # Verify quiz exists if needed
+    if not quiz:
+        return jsonify({"errors": [f"Quiz with quiz_id {quiz_id} not found"]}), 404
+    question = select_question(question_id)
+    if not question:
+        return jsonify({"errors": [f"Question with question_id {question_id} not found"]}), 404
+
+
+    if request.method == "POST":
+        form = QuestionForm(request.form, obj=question) # Pass request.form and obj for editing
+        if not form.validate_on_submit():
+            return jsonify({"errors": form.errors}), 400
+
+        form.populate_obj(question, exclude=['options']) # Exclude options for now
+
+        # Clear existing options and add new ones
+        question.options = [] # Clear existing options
+        for option_form in form.options:
+            if option_form.text.data: # Only add option if text is provided
+                option = Option()
+                option_form.populate_obj(option)
+                option.question_id = question.question_id
+                db.session.add(option)
+
+        db.session.commit()
+        return jsonify({"message": "Successfully updated question"})
+
+    elif request.method == "DELETE":
+        db.session.delete(question)
+        db.session.commit()
+        return jsonify({"message": "Successfully deleted question"})
+
+
+    # GET request to render edit form
+    form = QuestionForm(obj=question) # Populate form for editing
+    return render_template("admin/quiz.html", quiz=quiz, quiz_form=QuizForm(obj=quiz), question_form=form, quiz_id=quiz_id, question_id=question_id) # Re-render quiz page, adjust if needed
+
+@admin_bp.route("quiz/<int:quiz_id>/question/<int:question_id>/delete_question", methods=["DELETE"])
+def delete_question(quiz_id, question_id): # Separate delete route
+    question = select_question(question_id)
+    if not question:
+        return jsonify({"errors": [f"Question with question_id {question_id} not found"]}), 404
+
+    db.session.delete(question)
+    db.session.commit()
+    return jsonify({"message": "Successfully deleted question"})

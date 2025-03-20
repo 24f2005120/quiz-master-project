@@ -55,4 +55,53 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
+  // Add Option Button Functionality
+  const addOptionBtn = document.getElementById('add-option-btn');
+  if (addOptionBtn) { // Check if the button exists on the page
+    addOptionBtn.addEventListener('click', function () {
+      const optionsContainer = document.getElementById('options-container');
+      const optionGroups = optionsContainer.querySelectorAll('.option-group');
+      const lastOptionGroup = optionGroups[optionGroups.length - 1];
+
+      if (!lastOptionGroup) {
+        console.error("No option group to clone.");
+        return; // Exit if no option group exists
+      }
+
+      const newOptionGroup = lastOptionGroup.cloneNode(true); // Deep clone
+
+      // Clear input values in the new option group
+      newOptionGroup.querySelectorAll('input[type="text"], textarea').forEach(input => {
+        input.value = '';
+      });
+      newOptionGroup.querySelector('input[type="checkbox"]').checked = false; // Uncheck checkbox
+
+      // Update option group heading number
+      const heading = newOptionGroup.querySelector('h6');
+      const nextOptionIndex = optionGroups.length + 1;
+      if (heading) {
+        heading.textContent = `Option ${nextOptionIndex}`;
+      }
+
+      // **Important: Update input names for FieldList indexing**
+      newOptionGroup.querySelectorAll('input, textarea, select').forEach(input => {
+        const name = input.getAttribute('name');
+        if (name && name.startsWith('options-')) { // Assuming default FieldList prefix
+          const parts = name.split('-');
+          const fieldName = parts[2]; // text or is_correct
+          input.setAttribute('name', `options-${nextOptionIndex - 1}-${fieldName}`); // Adjust index
+          input.setAttribute('id', `options-${nextOptionIndex - 1}-${fieldName}`); // Update ID if needed for labels
+
+          // Update label 'for' attribute if applicable
+          const label = newOptionGroup.querySelector(`label[for="${parts.join('-')}"]`);
+          if (label) {
+            label.setAttribute('for', `options-${nextOptionIndex - 1}-${fieldName}`);
+          }
+        }
+      });
+
+
+      optionsContainer.appendChild(newOptionGroup);
+    });
+  }
 });
