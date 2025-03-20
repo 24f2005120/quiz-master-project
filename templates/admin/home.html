@@ -1,29 +1,35 @@
-{% extends "base.html" %} 
-{% block title %} Admin Dashboard {% endblock %} 
-{% block body %}
-{% include "admin/nav.html" %}
+{% extends "base.html" %} {% block title %} Admin Dashboard {% endblock %} {%
+block body %} {% include "admin/nav.html" %}
+
+<script src="{{ url_for('static', filename='admin_scripts.js') }}"></script>
 
 <div class="container mt-4">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h2 class="mb-3">Subjects</h2>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSubjectModal">
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-bs-toggle="modal"
+      data-bs-target="#createSubjectModal"
+    >
       Create Subject
     </button>
-
   </div>
   {% if not subjects %}
   <p class="text-muted">No Subjects added yet.</p>
-  {% endif %} 
+  {% endif %}
 
   <div class="row row-cols-1 row-cols-md-2">
     {% for subject in subjects %}
     <div class="col">
       <div class="card mb-3 shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
           <h4 class="mb-0">{{ subject.subject_name }}</h4>
           <div>
             <button
-              type="button" 
+              type="button"
               class="btn btn-primary"
               data-bs-toggle="modal"
               data-bs-target="#editSubjectModal"
@@ -36,8 +42,8 @@
                         "description": subject.description
                         }
                       }}
-                    )'          
-              >
+                    )'
+            >
               <i class="bi bi-pencil-square"></i>
             </button>
 
@@ -45,7 +51,7 @@
               class="btn btn-danger btn"
               onclick="handleDelete('{{ url_for('admin.delete_subject', subject_id=subject.subject_id) }}')"
             >
-              <i class="bi bi-trash"></i> 
+              <i class="bi bi-trash"></i>
             </button>
           </div>
         </div>
@@ -57,7 +63,10 @@
           <div class="accordion" id="chaptersAccordion">
             {% for chapter in subject.chapters %}
             <div class="accordion-item">
-              <h2 class="accordion-header" id="heading{{subject.subject_id}}/{{ chapter.chapter_id }}">
+              <h2
+                class="accordion-header"
+                id="heading{{subject.subject_id}}/{{ chapter.chapter_id }}"
+              >
                 <button
                   class="accordion-button collapsed"
                   type="button"
@@ -66,54 +75,76 @@
                   aria-expanded="false"
                   aria-controls="collapse{{subject.subject_id}}/{{ chapter.chapter_id }}"
                 >
-                  <strong>{{ chapter.chapter_id }}. {{ chapter.chapter_name }}</strong>
+                  <strong
+                    >{{ chapter.chapter_id }}. {{ chapter.chapter_name
+                    }}</strong
+                  >
                 </button>
               </h2>
               <div
-                  id="collapse{{subject.subject_id}}/{{ chapter.chapter_id }}"
+                id="collapse{{subject.subject_id}}/{{ chapter.chapter_id }}"
                 class="accordion-collapse collapse"
                 aria-labelledby="heading{{ chapter.chapter_id }}"
                 data-bs-parent="#chaptersAccordion"
               >
-            <div class="accordion-body">
-              {% if chapter.quizzes %}
-              <ul class="list-group">
-                {% for quiz in chapter.quizzes %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  {{loop.index}}<a href="{{url_for('admin.edit_quiz',quiz_id=quiz.quiz_id)}}" class="text-decoration-none">{{ quiz.quiz_name }}</a>
-                <button
-                  class="btn btn-danger btn"
-                  onclick="handleDelete('{{ url_for('admin.delete_quiz', quiz_id=quiz.quiz_id) }}')"
-                >
-                  <i class="bi bi-trash"></i> 
-                </button>
-                </li>
-                {% endfor %}
-              </ul>
-              {% else %}
-              <p class="text-muted">No quizzes available for this chapter.</p>
-              {% endif %}
+                <div class="accordion-body">
+                  {% if chapter.quizzes %}
+                  <ul class="list-group">
+                    {% for quiz in chapter.quizzes %}
+                    <li
+                      class="list-group-item d-flex justify-content-between align-items-center"
+                    >
+                      {{loop.index}}<a
+                        href="{{url_for('admin.edit_quiz',quiz_id=quiz.quiz_id)}}"
+                        class="text-decoration-none"
+                        >{{ quiz.quiz_name }}</a
+                      >
+                      <div>
+                        <a
+                          href="{{url_for('admin.edit_quiz',quiz_id=quiz.quiz_id)}}"
+                        >
+                          <button class="btn btn-primary">
+                            <i class="bi bi-pencil-square"></i></button
+                        ></a>
+                        <button
+                          class="btn btn-danger btn"
+                          onclick="handleDelete('{{ url_for('admin.delete_quiz', quiz_id=quiz.quiz_id) }}')"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                  {% else %}
+                  <p class="text-muted">
+                    No quizzes available for this chapter.
+                  </p>
+                  {% endif %}
 
-              <div class="btn-group" role="group" aria-label="chapter_buttons">
-
-              <!-- Add Quiz Button -->
-              <button
-                class="btn btn-outline-primary btn-sm mt-2"
-                data-bs-toggle="modal"
-                data-bs-target="#createQuizModal"
-                onclick="updateModalFormAction(
+                  <div
+                    class="btn-group"
+                    role="group"
+                    aria-label="chapter_buttons"
+                  >
+                    <!-- Add Quiz Button -->
+                    <button
+                      class="btn btn-outline-primary btn-sm mt-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#createQuizModal"
+                      onclick="updateModalFormAction(
                 '{{url_for('admin.create_quiz', subject_id=subject.subject_id, chapter_id=chapter.chapter_id)}}', 
                 'createQuizModal')"
-              >
-                + Add Quiz
-              </button>
+                    >
+                      + Add Quiz
+                    </button>
 
-              <button
-              type="button" 
-              class="btn btn-outline-primary btn-sm mt-2"
-              data-bs-toggle="modal"
-              data-bs-target="#editChapterModal"
-              onclick='updateModalFormAction(
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-sm mt-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editChapterModal"
+                      onclick='updateModalFormAction(
                       "{{ url_for("admin.edit_chapter", subject_id=subject.subject_id, chapter_id=chapter.chapter_id)}}",
                       "editChapterModal",
                       {{ 
@@ -122,98 +153,56 @@
                         "description": chapter.description
                         }
                       }}
-                    )'          
-              >
-              Rename Chapter
-            </button>
+                    )'
+                    >
+                      Rename Chapter
+                    </button>
 
-              <!-- Remove Chapter Button -->
-              <button
-                class="btn btn-outline-danger btn-sm mt-2"
-                onclick="handleDelete('{{url_for('admin.delete_chapter', subject_id=subject.subject_id, chapter_id=chapter.chapter_id)}}')"
-              >
-                Delete Chapter
-              </button>
+                    <!-- Remove Chapter Button -->
+                    <button
+                      class="btn btn-outline-danger btn-sm mt-2"
+                      onclick="handleDelete('{{url_for('admin.delete_chapter', subject_id=subject.subject_id, chapter_id=chapter.chapter_id)}}')"
+                    >
+                      Delete Chapter
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
-</div>
+            {% endfor %}
+          </div>
           {% else %}
           <p class="text-muted">No chapters added yet.</p>
           {% endif %}
           <div class="mt-2 d-grid gap-1">
-          <button
-            type="button"
-            class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#createChapterModal"
-            onclick="updateModalFormAction(
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#createChapterModal"
+              onclick="updateModalFormAction(
             '{{url_for('admin.create_chapter', subject_id=subject.subject_id)}}', 
             'createChapterModal')"
-          >
-            Add Chapter
-          </button>
+            >
+              Add Chapter
+            </button>
           </div>
         </div>
       </div>
     </div>
     {% endfor %}
+  </div>
+
+  {% import "macros.html" as macros %} {{
+  macros.modal_form("createSubjectModal", "Create New Subject",
+  url_for('admin.create_subject'), subject_form) }} {{
+  macros.modal_form("editSubjectModal", "Edit Subject",
+  url_for('admin.edit_subject', subject_id=0), subject_form )}} {{
+  macros.modal_form("createChapterModal", "Create New Chapter",
+  url_for('admin.create_chapter', subject_id=0), chapter_form) }} {{
+  macros.modal_form("editChapterModal", "Edit Chapter",
+  url_for('admin.edit_subject', subject_id=0,chapter_id=0), chapter_form )}} {{
+  macros.modal_form("createQuizModal", "Create Quiz",
+  url_for('admin.create_quiz', subject_id=0,chapter_id=0), quiz_form)}} {%
+  endblock %}
 </div>
-
-{% import "macros.html" as macros %} 
-{{ macros.modal_form("createSubjectModal", "Create New Subject", url_for('admin.create_subject'), subject_form) }} 
-{{ macros.modal_form("editSubjectModal", "Edit Subject", url_for('admin.edit_subject', subject_id=0), subject_form )}}
-{{ macros.modal_form("createChapterModal", "Create New Chapter", url_for('admin.create_chapter', subject_id=0), chapter_form) }}
-{{ macros.modal_form("editChapterModal", "Edit Chapter", url_for('admin.edit_subject', subject_id=0,chapter_id=0), chapter_form )}}
-{{ macros.modal_form("createQuizModal", "Create Quiz", url_for('admin.create_quiz', subject_id=0,chapter_id=0), quiz_form)}}
-
-<script>
-  function updateModalFormAction(newAction, modalId, data = {}) {
-    
-    // Update form action
-    const form = document.getElementById(modalId + "Form");
-    if (!form) {
-      console.error("Form not found!");
-      return;
-    }
-    
-    form.action = newAction;
-
-    // Populate form fields
-    Object.keys(data).forEach((key) => {
-      let inputField = form.querySelector(`[name="${key}"]`); // Select field by name
-      console.log("Updating Field:", key, "with Value:", data[key]);
-
-      if (inputField) {
-        inputField.value = data[key] || "";
-      } else {
-        console.warn("Field not found:", key);
-      }
-    });
-  }
-</script>
-
-<script>
-  // Get the delete URLs dynamically
-
-  function handleDelete(url) {
-    if (!confirm("Are you sure you want to delete this?")) return;
-
-    fetch(url, { method: "DELETE" })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message) {
-          showToast(data.message, "success");
-          setTimeout(() => window.location.reload(), 300);
-        } else if (data.errors) {
-          showToast(data.errors, "error");
-        }
-      })
-      .catch(() => showToast("Error deleting item", "danger"));
-  }
-</script>
-
-{% endblock %}
-

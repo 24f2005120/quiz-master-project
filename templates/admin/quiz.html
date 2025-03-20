@@ -1,0 +1,147 @@
+{% extends "base.html" %} {% block title %} Edit Quiz - {{ quiz.quiz_name }} {%
+endblock %} {% block body %} {% include "admin/nav.html" %}
+<script src="{{ url_for('static', filename='admin_scripts.js') }}"></script>
+
+<div class="container mt-4">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Edit Quiz: {{ quiz.quiz_name }}</h2>
+  </div>
+
+  <!-- Quiz Info -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Quiz Details</h4>
+      <button
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#editQuizModal"
+        onclick='updateModalFormAction(
+                "{{ url_for("admin.edit_quiz", quiz_id=quiz.quiz_id) }}",
+                "editQuizModal",
+                {{ 
+                  {
+                  "quiz_name": quiz.quiz_name,
+                  "remarks": quiz.remarks,
+                  "date": quiz.date if quiz.date else 0,
+                  "duration": quiz.duration if quiz.duration else 0 
+                  }
+                }}
+              )'
+      >
+        <i class="bi bi-pencil-square"></i> Edit Quiz
+      </button>
+    </div>
+    <div class="card-body">
+      <p><strong>Name:</strong> {{ quiz.quiz_name }}</p>
+      <p><strong>Remarks:</strong> {{ quiz.remarks }}</p>
+      {% if quiz.date %}
+      <p><strong>Date Scheduled:</strong> {{ quiz.date }}</p>
+      {% endif %} {% if quiz.duration %}
+      <p><strong>Duration:</strong> {{ quiz.duration }} minutes</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Questions List -->
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Questions</h4>
+      <button
+        class="btn btn-success"
+        data-bs-toggle="modal"
+        data-bs-target="#createQuestionModal"
+      >
+        + Add Question
+      </button>
+    </div>
+
+    <div class="card-body">
+      {% if quiz.questions %}
+      <div class="accordion" id="questionsAccordion">
+        {% for question in quiz.questions %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading{{ question.question_id }}">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapse{{ question.question_id }}"
+              aria-expanded="false"
+              aria-controls="collapse{{ question.question_id }}"
+            >
+              <strong>Q{{ loop.index }}. {{ question.text[:50] }}...</strong>
+            </button>
+          </h2>
+          <div
+            id="collapse{{ question.question_id }}"
+            class="accordion-collapse collapse"
+            aria-labelledby="heading{{ question.question_id }}"
+            data-bs-parent="#questionsAccordion"
+          >
+            <div class="accordion-body">
+              <p><strong>Question:</strong> {{ question.text }}</p>
+              <p><strong>Type:</strong> {{ question.question_type }}</p>
+
+              <!-- Choices Display -->
+              {% if question.options %}
+              <p><strong>Options:</strong></p>
+              <ul class="list-group">
+                {% for option in question.options %}
+                <li class="list-group-item">
+                  {{ option.text }} {% if option.is_correct %}
+                  <span class="badge bg-success">Correct</span> {% endif %}
+                </li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="text-muted">No options available.</p>
+              {% endif %}
+
+              <!-- Question Actions -->
+              <div class="mt-3 d-flex gap-2">
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editQuestionModal"
+                  onclick='updateModalFormAction(
+                    "{{ url_for("admin.edit_question", quiz_id=quiz.quiz_id, question_id=question.question_id) }}",
+                    "editQuestionModal",
+                    {{ 
+                      {
+                        "text": question.text,
+                        "question_type": question.question_type
+                      }
+                    }}
+                  )'
+                >
+                  <i class="bi bi-pencil-square"></i> Edit
+                </button>
+
+                <button
+                  class="btn btn-outline-danger btn-sm"
+                  onclick="handleDelete('{{ url_for('admin.delete_question', quiz_id=quiz.quiz_id, question_id=question.question_id) }}')"
+                >
+                  <i class="bi bi-trash"></i> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted">No questions added yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Modal Forms -->
+{% import "macros.html" as macros %} {{ macros.modal_form("editQuizModal", "Edit
+Quiz", url_for('admin.edit_quiz', quiz_id=quiz.quiz_id), quiz_form) }} {{
+macros.modal_form("createQuestionModal", "Add Question",
+url_for('admin.create_question', quiz_id=quiz.quiz_id), question_form) }}
+{{macros.modal_form("editQuestionModal", "Edit Question",
+url_for('admin.edit_question', quiz_id=quiz.quiz_id, question_id=0),
+question_form) }} {% endblock %}

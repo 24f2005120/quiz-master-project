@@ -32,7 +32,7 @@ def admin_home():
             subjects=subjects,
             subject_form=subject_form,
             chapter_form=chapter_form,
-            quiz_form=quiz_form
+            quiz_form=quiz_form,
         )
 
 
@@ -163,30 +163,57 @@ def create_quiz(subject_id, chapter_id):
     form = QuizForm()
     if not form.validate_on_submit():
         return (jsonify({"errors": form.errors}), 400)
-    quiz = Quiz(subject_id=subject_id,chapter_id=chapter_id)#unsafe
+    quiz = Quiz(subject_id=subject_id, chapter_id=chapter_id)  # unsafe
     form.populate_obj(quiz)
     session.add(quiz)
     session.commit()
 
-    return jsonify({"message":"Succesfully created empty quiz"})
+    return jsonify({"message": "Succesfully created empty quiz"})
+
 
 def select_quiz(quiz_id):
-    return session.scalar(select(Quiz).where(Quiz.quiz_id==quiz_id))
+    return session.scalar(select(Quiz).where(Quiz.quiz_id == quiz_id))
+
+
 @admin_bp.route("quiz/<int:quiz_id>/delete_quiz", methods=["DELETE"])
 def delete_quiz(quiz_id):
     quiz = select_quiz(quiz_id)
     session.delete(quiz)
     session.commit()
-    return jsonify({"message":f"Succesfully deleted quiz {quiz.quiz_name}"})
+    return jsonify({"message": f"Succesfully deleted quiz {quiz.quiz_name}"})
+
 
 @admin_bp.route("quiz/<int:quiz_id>", methods=["GET", "POST"])
 def edit_quiz(quiz_id):
     quiz = select_quiz(quiz_id)
-    return f"quiz {quiz.quiz_name}"
+    if not quiz:
+        return jsonify({"errors":[f"quiz with quiz_id {quiz_id} not found"]}),404
 
 
-@admin_bp.route("quizzes")
+    if request.method=="POST":
+        form = QuizForm()
+        if not form.validate_on_submit():
+            return jsonify({"errors":form.errors}),400
+        quiz = select_quiz(quiz_id)
+        form.populate_obj(quiz)
+        session.commit()
+        return jsonify({"message":"Succesfully edited quiz details"})
+
+    return render_template(
+        "admin/quiz.html", quiz=quiz, quiz_form=QuizForm(), question_form=QuizForm()
+    )
+
+
+@admin_bp.route("quiz")
 def quizzes():
     pass
 
 
+@admin_bp.route("quiz/<int:quiz_id>/create_question", methods=["POST", "GET"])
+def create_question(quiz_id):
+    pass
+
+
+@admin_bp.route("quiz/<int:quiz_id>/<int:question_id>")
+def edit_question(quiz_id, question_id):
+    pass

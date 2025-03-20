@@ -22,6 +22,6 @@ class ChapterForm(FlaskForm):
 
 class QuizForm(FlaskForm):
     quiz_name = StringField("Quiz Name", validators=[DataRequired()])
-    quiz_date = DateField("Date", validators=[Optional()])
-    quiz_duration = IntegerField("Duration (minutes)", validators=[Optional()])
+    date = DateField("Date", validators=[Optional()])
+    duration = IntegerField("Duration (minutes)", validators=[Optional()])
     remarks = StringField("Remarks")

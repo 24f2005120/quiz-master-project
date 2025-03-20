@@ -56,8 +56,8 @@ class Quiz(db.Model):
     quiz_name: Mapped[str]
     chapter_id: Mapped[int] = mapped_column(ForeignKey("chapter.chapter_id"))
     subject_id: Mapped[int] = mapped_column(ForeignKey("subject.subject_id"))
-    quiz_date: Mapped[Optional[date]]
-    quiz_duration: Mapped[Optional[int]]  # minutes? hopefully
+    date: Mapped[Optional[date]]
+    duration: Mapped[Optional[int]]  # minutes? hopefully
     remarks: Mapped[str]
 
     chapter: Mapped["Chapter"] = relationship(back_populates="quizzes")
