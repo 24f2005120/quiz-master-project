@@ -43,12 +43,19 @@ class Chapter(db.Model):
     description: Mapped[str]
 
     subject: Mapped["Subject"] = relationship(back_populates="chapters")
-    quizzes: Mapped[List["Quiz"]] = relationship(back_populates="chapter")
+    quizzes: Mapped[List["Quiz"]] = relationship(
+        "Quiz",
+        # ensures when we do chapter.quizzes it only takes the correct chapter not all the ones with same chapter_id
+        primaryjoin="and_(Quiz.subject_id == Chapter.subject_id, Quiz.chapter_id == Chapter.chapter_id)",
+        back_populates="chapter",
+    )
 
 
 class Quiz(db.Model):
-    chapter_id: Mapped[Optional[int]] = mapped_column(ForeignKey("chapter.chapter_id"))
     quiz_id: Mapped[id_pk]
+    quiz_name: Mapped[str]
+    chapter_id: Mapped[int] = mapped_column(ForeignKey("chapter.chapter_id"))
+    subject_id: Mapped[int] = mapped_column(ForeignKey("subject.subject_id"))
     quiz_date: Mapped[Optional[date]]
     quiz_duration: Mapped[Optional[int]]  # minutes? hopefully
     remarks: Mapped[str]

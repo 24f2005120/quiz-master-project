@@ -28,8 +28,7 @@
               data-bs-toggle="modal"
               data-bs-target="#editSubjectModal"
               onclick='updateModalFormAction(
-                      "{{ url_for("admin.edit_subject", subject_id=0) }}",
-                      {{ subject.subject_id }}, 
+                      "{{ url_for("admin.edit_subject", subject_id=subject.subject_id) }}",
                       "editSubjectModal",
                       {{ 
                         {
@@ -80,8 +79,14 @@
               {% if chapter.quizzes %}
               <ul class="list-group">
                 {% for quiz in chapter.quizzes %}
-                <li class="list-group-item">
-                  <a href="#" class="text-decoration-none">{{ quiz.quiz_name }}</a>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{loop.index}}<a href="{{url_for('admin.edit_quiz',quiz_id=quiz.quiz_id)}}" class="text-decoration-none">{{ quiz.quiz_name }}</a>
+                <button
+                  class="btn btn-danger btn"
+                  onclick="handleDelete('{{ url_for('admin.delete_quiz', quiz_id=quiz.quiz_id) }}')"
+                >
+                  <i class="bi bi-trash"></i> 
+                </button>
                 </li>
                 {% endfor %}
               </ul>
@@ -96,7 +101,9 @@
                 class="btn btn-outline-primary btn-sm mt-2"
                 data-bs-toggle="modal"
                 data-bs-target="#createQuizModal"
-
+                onclick="updateModalFormAction(
+                '{{url_for('admin.create_quiz', subject_id=subject.subject_id, chapter_id=chapter.chapter_id)}}', 
+                'createQuizModal')"
               >
                 + Add Quiz
               </button>
@@ -107,8 +114,7 @@
               data-bs-toggle="modal"
               data-bs-target="#editChapterModal"
               onclick='updateModalFormAction(
-                      "{{ url_for("admin.edit_chapter", subject_id=subject.subject_id, chapter_id=0) }}",
-                      {{ chapter.chapter_id }}, 
+                      "{{ url_for("admin.edit_chapter", subject_id=subject.subject_id, chapter_id=chapter.chapter_id)}}",
                       "editChapterModal",
                       {{ 
                         {
@@ -128,7 +134,7 @@
               >
                 Delete Chapter
               </button>
-              </div>
+            </div>
       </div>
     </div>
   </div>
@@ -144,8 +150,7 @@
             data-bs-toggle="modal"
             data-bs-target="#createChapterModal"
             onclick="updateModalFormAction(
-            '{{url_for('admin.create_chapter', subject_id=0)}}', 
-            {{ subject.subject_id }},
+            '{{url_for('admin.create_chapter', subject_id=subject.subject_id)}}', 
             'createChapterModal')"
           >
             Add Chapter
@@ -162,13 +167,11 @@
 {{ macros.modal_form("editSubjectModal", "Edit Subject", url_for('admin.edit_subject', subject_id=0), subject_form )}}
 {{ macros.modal_form("createChapterModal", "Create New Chapter", url_for('admin.create_chapter', subject_id=0), chapter_form) }}
 {{ macros.modal_form("editChapterModal", "Edit Chapter", url_for('admin.edit_subject', subject_id=0,chapter_id=0), chapter_form )}}
+{{ macros.modal_form("createQuizModal", "Create Quiz", url_for('admin.create_quiz', subject_id=0,chapter_id=0), quiz_form)}}
 
 <script>
-  function updateModalFormAction(actionUrlTemplate, itemId, modalId, data = {}) {
+  function updateModalFormAction(newAction, modalId, data = {}) {
     
-    // Replace "0" in the URL template with the actual item ID
-    const newAction = actionUrlTemplate.replace("0", itemId);
-
     // Update form action
     const form = document.getElementById(modalId + "Form");
     if (!form) {

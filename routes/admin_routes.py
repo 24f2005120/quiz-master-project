@@ -4,9 +4,9 @@ from flask_login import current_user
 from flask_login.utils import current_app
 from sqlalchemy import func, select
 
-from forms import ChapterForm, SubjectForm
+from forms import ChapterForm, QuizForm, SubjectForm
 from models import db
-from models.models import Chapter, Subject
+from models.models import Chapter, Quiz, Subject
 
 session = db.session
 
@@ -24,6 +24,7 @@ def require_admin():
 def admin_home():
     subject_form = SubjectForm()
     chapter_form = ChapterForm()
+    quiz_form = QuizForm()
     if request.method == "GET":
         subjects = session.scalars(select(Subject)).all()
         return render_template(
@@ -31,6 +32,7 @@ def admin_home():
             subjects=subjects,
             subject_form=subject_form,
             chapter_form=chapter_form,
+            quiz_form=quiz_form
         )
 
 
@@ -121,15 +123,19 @@ def create_chapter(subject_id):
     return jsonify({"message": "Chapter created successfully"})
 
 
-@admin_bp.route(
-    "<int:subject_id>/delete_chapter/<int:chapter_id>", methods=["DELETE", "GET"]
-)
-def delete_chapter(subject_id, chapter_id):
-    chapter = session.scalar(
+def select_chapter(subject_id, chapter_id):
+    return session.scalar(
         select(Chapter).where(
             Chapter.chapter_id == chapter_id and Chapter.subject_id == subject_id
         )
     )
+
+
+@admin_bp.route(
+    "<int:subject_id>/delete_chapter/<int:chapter_id>", methods=["DELETE", "GET"]
+)
+def delete_chapter(subject_id, chapter_id):
+    chapter = select_chapter(subject_id, chapter_id)
     session.delete(chapter)
     session.commit()
     return jsonify({"message": f"Succesfully deleted subject {chapter.chapter_name}"})
@@ -139,11 +145,7 @@ def delete_chapter(subject_id, chapter_id):
     "<int:subject_id>/edit_chapter/<int:chapter_id>", methods=["POST", "PUT"]
 )
 def edit_chapter(subject_id, chapter_id):
-    chapter = session.scalar(
-        select(Chapter).where(
-            Chapter.chapter_id == chapter_id and Chapter.subject_id == subject_id
-        )
-    )
+    chapter = select_chapter(subject_id, chapter_id)
     form = ChapterForm()
     if not form.validate_on_submit():
         return (
@@ -153,3 +155,38 @@ def edit_chapter(subject_id, chapter_id):
     form.populate_obj(chapter)
     session.commit()
     return jsonify({"message": "Subject Edited Successfully"})
+
+
+@admin_bp.route("<int:subject_id>/<int:chapter_id>/create_quiz", methods=["POST"])
+# @admin_bp.route("create_quiz", methods=["POST"]) if i want to make unassigned quizzes possible
+def create_quiz(subject_id, chapter_id):
+    form = QuizForm()
+    if not form.validate_on_submit():
+        return (jsonify({"errors": form.errors}), 400)
+    quiz = Quiz(subject_id=subject_id,chapter_id=chapter_id)#unsafe
+    form.populate_obj(quiz)
+    session.add(quiz)
+    session.commit()
+
+    return jsonify({"message":"Succesfully created empty quiz"})
+
+def select_quiz(quiz_id):
+    return session.scalar(select(Quiz).where(Quiz.quiz_id==quiz_id))
+@admin_bp.route("quiz/<int:quiz_id>/delete_quiz", methods=["DELETE"])
+def delete_quiz(quiz_id):
+    quiz = select_quiz(quiz_id)
+    session.delete(quiz)
+    session.commit()
+    return jsonify({"message":f"Succesfully deleted quiz {quiz.quiz_name}"})
+
+@admin_bp.route("quiz/<int:quiz_id>", methods=["GET", "POST"])
+def edit_quiz(quiz_id):
+    quiz = select_quiz(quiz_id)
+    return f"quiz {quiz.quiz_name}"
+
+
+@admin_bp.route("quizzes")
+def quizzes():
+    pass
+
+
