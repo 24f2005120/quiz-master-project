@@ -23,8 +23,8 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
                   {
                   "quiz_name": quiz.quiz_name,
                   "remarks": quiz.remarks,
-                  "date": quiz.date if quiz.date else 0,
-                  "duration": quiz.duration if quiz.duration else 0 
+                  "date": quiz.date.isoformat() if quiz.date else 0,
+                  "duration": quiz.duration 
                   }
                 }}
               )'
@@ -70,7 +70,7 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
               aria-expanded="false"
               aria-controls="collapse{{ question.question_id }}"
             >
-              <strong>Q{{ loop.index }}. {{ question.text[:50] }}...</strong>
+              <strong>Q{{ loop.index }}. {{ question.text }}</strong>
             </button>
           </h2>
           <div
@@ -80,8 +80,7 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
             data-bs-parent="#questionsAccordion"
           >
             <div class="accordion-body">
-              <p><strong>Question:</strong> {{ question.text }}</p>
-              <p><strong>Type:</strong> {{ question.question_type }}</p>
+              <p><strong>Marks:</strong> {{ question.marks }}</p>
 
               <!-- Choices Display -->
               {% if question.options %}
@@ -89,8 +88,13 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
               <ul class="list-group">
                 {% for option in question.options %}
                 <li class="list-group-item">
-                  {{ option.text }} {% if option.is_correct %}
-                  <span class="badge bg-success">Correct</span> {% endif %}
+                  {% if option.is_correct %}
+                  <span class="badge bg-success">
+                    <i class="bi bi-check"></i>
+                  </span>
+                  {% else %}
+                  <span class="badge bg-danger"> <i class="bi bi-x"></i> </span>
+                  {% endif %}{{ option.text }}
                 </li>
                 {% endfor %}
               </ul>

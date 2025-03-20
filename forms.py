@@ -35,7 +35,7 @@ class OptionForm(FlaskForm):
 
 class QuestionForm(FlaskForm):
     text = TextAreaField("Question Text", validators=[DataRequired()])
-    marks = IntegerField("Marks", validators=[DataRequired()])
+    marks = IntegerField("Marks", validators=[DataRequired()], default=1)
     options = FieldList(
         FormField(OptionForm),
         min_entries=1,
