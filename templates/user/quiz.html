@@ -1,0 +1,60 @@
+{% extends "base.html" %} {% block title %} {{ quiz.quiz_name }} - Quiz {%
+endblock %} {% block body %} {% include "user/nav.html" %}
+
+<div class="container py-5">
+  <h2 class="mb-4 fw-bold">{{ quiz.quiz_name }}</h2>
+
+  <form method="POST" action="{{ url_for('user.quiz', quiz_id=quiz.quiz_id) }}">
+    {% if quiz.questions %} {% for question in quiz.questions %}
+    <div class="mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="card-title fw-semibold mb-3">
+            Question {{ loop.index }}. {{ question.text }} ({{ question.marks }}
+            points)
+          </h5>
+
+          {% if question.options %}
+          <ul class="list-unstyled">
+            {% for option in question.options %}
+            <li class="mb-2">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="question_{{ question.question_id }}"
+                  id="option_{{ option.option_id }}"
+                  value="{{ option.option_id }}"
+                  required
+                />
+                <label
+                  class="form-check-label"
+                  for="option_{{ option.option_id }}"
+                >
+                  {{ option.text }}
+                </label>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted">No options available for this question.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <div class="text-center py-5">
+      <p class="text-muted mb-0">No questions available in this quiz.</p>
+    </div>
+    {% endif %} {% if quiz.questions %}
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary btn-lg px-4">
+        Submit Quiz
+      </button>
+    </div>
+    {% endif %}
+  </form>
+</div>
+
+{% endblock %}
