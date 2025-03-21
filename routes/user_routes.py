@@ -21,3 +21,5 @@ def user_required():
 def home():
     upcoming_quizzes = session.scalars(select(Quiz))
     return render_template("user/home.html", upcoming_quizzes=upcoming_quizzes)
+
+

@@ -8,7 +8,9 @@ def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SECRET_KEY"] = "we don't really need to care about security here so"
+    app.config["SECRET_KEY"] = (
+        "we aren't going to consider security much rn and its easy to setup later"
+    )
 
     init_login_manager(app)
 
@@ -23,7 +25,8 @@ app = create_app()
 
 
 @app.template_global()
-def is_active(page_name):  # small function to make the nav_bar code better
+def is_active(page_name):
+    """used for checking which page to be highlighted in the navbar"""
     return "active" if request.endpoint == page_name else ""
 
 

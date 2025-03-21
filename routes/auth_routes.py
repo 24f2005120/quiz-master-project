@@ -20,12 +20,12 @@ def login():
     if current_user.is_authenticated:
         return redirect("/redirect")
 
-    form = AuthForm(request.form)
+    form = AuthForm()
 
     if request.method == "GET":
         return render_template("login.html", form=form)
 
-    if request.method == "POST" and form.validate():
+    if request.method == "POST" and form.validate_on_submit:
         user = select_user(form.data["username"])
 
         if not user:
