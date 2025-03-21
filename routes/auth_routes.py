@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, request
+from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, logout_user
 from sqlalchemy import select
 
@@ -48,22 +48,24 @@ def signup():
     if current_user.is_authenticated:
         return redirect("/redirect")
 
-    form = AuthForm(request.form)
+    form = AuthForm()
 
     if request.method == "GET":
         return render_template("signup.html", form=form)
 
-    if request.method == "POST" and form.validate():
-
+    if request.method == "POST" and form.validate_on_submit:
         if select_user(form.data["username"]):
             print("user already exists error")
             return redirect("/signup")
 
-        user = User(**form.data)
+        user = User()
+        form.populate_obj(user)
         session.add(user)
         session.commit()
         login_user(user)
         return redirect("/user")
+    
+    return "Not supposed to happen"
 
 
 @auth_bp.route("/redirect", methods=["GET", "POST"])
@@ -76,7 +78,7 @@ def already_authenticated():
     if current_user.username == "admin":
         return redirect("/admin")
 
-    return redirect("/user")
+    return redirect(url_for('user.home'))
 
 
 @auth_bp.route("/logout", methods=["GET", "POST"])

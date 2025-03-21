@@ -12,12 +12,18 @@ parent_class=None) %}
           aria-label="Close"
         ></button>
       </div>
+
       <div class="modal-body">
         <form id="{{ modal_id }}Form" action="{{ action }}" method="POST">
-          {{ form.hidden_tag() }} {# CSRF Token #} {% if form.__class__.__name__
-          == 'QuestionForm' %} {# Check if it's a QuestionForm #} {% for field
-          in form if field.widget.input_type != 'hidden' and field.name !=
-          'options' %} {# Render non-hidden fields EXCEPT 'options' #}
+          {{ form.hidden_tag() }}
+          <!-- {# CSRF Token #} -->
+
+          {% if form.__class__.__name__ == 'QuestionForm' %}
+          <!-- {# Check if it's a QuestionForm #}  -->
+
+          {% for field in form if field.widget.input_type != 'hidden' and
+          field.name != 'options' %}
+
           <div class="mb-3">
             <label class="form-label" for="{{ field.id }}"
               >{{ field.label.text }}</label
@@ -73,6 +79,7 @@ parent_class=None) %}
           {% else %} {# For other forms (not QuestionForm), render fields as
           before #} {% for field in form if field.widget.input_type != 'hidden'
           %}
+
           <div class="mb-3">
             <label class="form-label" for="{{ field.id }}"
               >{{ field.label.text }}</label

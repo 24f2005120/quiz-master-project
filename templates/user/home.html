@@ -1,0 +1,49 @@
+{% extends "base.html" %} {% block title %} Quiz Dashboard {% endblock %} {%
+block body %} {% include "user/nav.html" %}
+<div class="container py-5">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-bold">Upcoming Quizzes</h2>
+  </div>
+
+  <!-- Quizzes List -->
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+    {% if upcoming_quizzes %} {% for quiz in upcoming_quizzes %}
+    <div class="col">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-light py-3">
+          <h5 class="card-title fw-semibold mb-0">{{ quiz.quiz_name }}</h5>
+        </div>
+        <div class="card-body p-4 d-flex flex-column justify-content-between">
+          <div>
+            <dl class="row mb-0">
+              <dt class="col-sm-4">Remarks:</dt>
+              <dd class="col-sm-8">{{ quiz.remarks }}</dd>
+
+              {% if quiz.date %}
+              <dt class="col-sm-4">Scheduled:</dt>
+              <dd class="col-sm-8">{{ quiz.date }}</dd>
+              {% endif %} {% if quiz.duration %}
+              <dt class="col-sm-4">Duration:</dt>
+              <dd class="col-sm-8">{{ quiz.duration }} minutes</dd>
+              {% endif %}
+            </dl>
+          </div>
+          <div class="mt-3 text-center">
+            <button class="btn btn-primary">Take Quiz</button>
+            <!--  or View Details, depending on what you want -->
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %} {% else %}
+    <div class="col">
+      <div class="text-center py-5">
+        <p class="text-muted mb-0">No upcoming quizzes scheduled.</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
