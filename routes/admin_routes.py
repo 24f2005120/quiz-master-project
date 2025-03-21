@@ -4,7 +4,7 @@ from flask_login import current_user
 from flask_login.utils import current_app
 from sqlalchemy import func, select
 
-from forms import ChapterForm, QuestionForm, QuizForm, SubjectForm
+from forms import ChapterForm, QuestionForm, QuizForm, SubjectForm, editQuestionForm
 from models import db
 from models.models import Chapter, Option, Question, Quiz, Subject
 
@@ -189,7 +189,6 @@ def edit_quiz(quiz_id):
     if not quiz:
         return jsonify({"errors":[f"quiz with quiz_id {quiz_id} not found"]}),404
 
-
     if request.method=="POST":
         form = QuizForm()
         if not form.validate_on_submit():
@@ -200,7 +199,11 @@ def edit_quiz(quiz_id):
         return jsonify({"message":"Succesfully edited quiz details"})
 
     return render_template(
-        "admin/quiz.html", quiz=quiz, quiz_form=QuizForm(), question_form=QuestionForm()
+        "admin/quiz.html",
+        quiz=quiz,
+        quiz_form=QuizForm(),
+        question_form=QuestionForm(),
+        edit_question_form=editQuestionForm(),
     )
 
 
@@ -260,21 +263,16 @@ def edit_question(quiz_id, question_id):
         if not form.validate_on_submit():
             return jsonify({"errors": form.errors}), 400
 
-        form.populate_obj(question, exclude=['options']) # Exclude options for now
 
-        # Clear existing options and add new ones
-        question.options = [] # Clear existing options
-        for option_form in form.options:
-            if option_form.text.data: # Only add option if text is provided
-                option = Option()
-                option_form.populate_obj(option)
-                option.question_id = question.question_id
-                db.session.add(option)
+        question = Question(quiz_id=quiz_id)
+        question.text = form.text.data
+        question.marks = form.marks.data
+        session.flush() # Flush to get question_id
 
         db.session.commit()
         return jsonify({"message": "Successfully updated question"})
 
-    elif request.method == "DELETE":
+    if request.method == "DELETE":
         db.session.delete(question)
         db.session.commit()
         return jsonify({"message": "Successfully deleted question"})

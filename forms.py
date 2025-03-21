@@ -1,7 +1,16 @@
 from flask_wtf import FlaskForm
-from wtforms import (BooleanField, DateField, FieldList, FormField,
-                     IntegerField, PasswordField, SelectField, StringField,
-                     SubmitField, TextAreaField)
+from wtforms import (
+    BooleanField,
+    DateField,
+    FieldList,
+    FormField,
+    IntegerField,
+    PasswordField,
+    SelectField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+)
 from wtforms.validators import DataRequired, Optional
 
 
@@ -39,6 +48,11 @@ class QuestionForm(FlaskForm):
     options = FieldList(
         FormField(OptionForm),
         min_entries=1,
-        max_entries=10, 
+        max_entries=10,
         label="Options",
     )
+
+
+class editQuestionForm(FlaskForm):
+    text = TextAreaField("Question Text", validators=[DataRequired()])
+    marks = IntegerField("Marks", validators=[DataRequired()], default=1)

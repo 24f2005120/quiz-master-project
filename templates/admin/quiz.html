@@ -2,20 +2,25 @@
 endblock %} {% block body %} {% include "admin/nav.html" %}
 <script src="{{ url_for('static', filename='admin_scripts.js') }}"></script>
 
-<div class="container mt-4">
+<div class="container py-5">
   <!-- Page Header -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Edit Quiz: {{ quiz.quiz_name }}</h2>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-bold">Edit Quiz: {{ quiz.quiz_name }}</h2>
+    <span class="badge bg-info">{{ quiz.questions|length }} Questions</span>
   </div>
 
   <!-- Quiz Info -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h4 class="mb-0">Quiz Details</h4>
+  <div class="card shadow-sm mb-5 border-0">
+    <div
+      class="card-header bg-light py-3 d-flex justify-content-between align-items-center"
+    >
+      <h4 class="mb-0 fw-semibold">Quiz Details</h4>
       <button
-        class="btn btn-primary"
+        class="btn btn-primary btn px-3"
         data-bs-toggle="modal"
         data-bs-target="#editQuizModal"
+        data-bs-tooltip="tooltip"
+        title="Edit quiz details"
         onclick='updateModalFormAction(
                 "{{ url_for("admin.edit_quiz", quiz_id=quiz.quiz_id) }}",
                 "editQuizModal",
@@ -24,109 +29,133 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
                   "quiz_name": quiz.quiz_name,
                   "remarks": quiz.remarks,
                   "date": quiz.date.isoformat() if quiz.date else 0,
-                  "duration": quiz.duration 
+                  "duration": quiz.duration  if quiz.duration else "",
                   }
                 }}
               )'
       >
-        <i class="bi bi-pencil-square"></i> Edit Quiz
+        <i class="bi bi-pencil-square me-1"></i> Edit Quiz
       </button>
     </div>
-    <div class="card-body">
-      <p><strong>Name:</strong> {{ quiz.quiz_name }}</p>
-      <p><strong>Remarks:</strong> {{ quiz.remarks }}</p>
-      {% if quiz.date %}
-      <p><strong>Date Scheduled:</strong> {{ quiz.date }}</p>
-      {% endif %} {% if quiz.duration %}
-      <p><strong>Duration:</strong> {{ quiz.duration }} minutes</p>
-      {% endif %}
+    <div class="card-body p-4">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">Name:</dt>
+        <dd class="col-sm-9">{{ quiz.quiz_name }}</dd>
+
+        <dt class="col-sm-3">Remarks:</dt>
+        <dd class="col-sm-9">{{ quiz.remarks }}</dd>
+
+        {% if quiz.date %}
+        <dt class="col-sm-3">Scheduled:</dt>
+        <dd class="col-sm-9">{{ quiz.date }}</dd>
+        {% endif %} {% if quiz.duration %}
+        <dt class="col-sm-3">Duration:</dt>
+        <dd class="col-sm-9">{{ quiz.duration }} minutes</dd>
+        {% endif %}
+      </dl>
     </div>
   </div>
 
   <!-- Questions List -->
-  <div class="card shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h4 class="mb-0">Questions</h4>
+  <div class="card shadow-sm border-0">
+    <div
+      class="card-header bg-light py-3 d-flex justify-content-between align-items-center"
+    >
+      <h4 class="mb-0 fw-semibold">Questions</h4>
       <button
-        class="btn btn-success"
+        class="btn btn-success btn px-3"
         data-bs-toggle="modal"
         data-bs-target="#createQuestionModal"
+        data-bs-tooltip="tooltip"
+        title="Add new question"
       >
-        + Add Question
+        <i class="bi bi-plus-lg me-1"></i> Add Question
       </button>
     </div>
 
-    <div class="card-body">
+    <div class="card-body p-4">
       {% if quiz.questions %}
-      <div class="accordion" id="questionsAccordion">
+      <div class="accordion accordion-flush" id="questionsAccordion">
         {% for question in quiz.questions %}
-        <div class="accordion-item">
+        <div class="accordion-item border mb-2 rounded">
           <h2 class="accordion-header" id="heading{{ question.question_id }}">
             <button
-              class="accordion-button collapsed"
+              class="accordion-button collapsed py-3"
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#collapse{{ question.question_id }}"
               aria-expanded="false"
               aria-controls="collapse{{ question.question_id }}"
             >
-              <strong>Q{{ loop.index }}. {{ question.text }}</strong>
+              <div class="d-flex align-items-center gap-2 w-100">
+                <span class="fw-semibold">Q{{ loop.index }}.</span>
+                <span class="flex-grow-1">{{ question.text }}</span>
+                <span class="badge bg-secondary">{{ question.marks }} pts</span>
+              </div>
             </button>
           </h2>
           <div
             id="collapse{{ question.question_id }}"
             class="accordion-collapse collapse"
             aria-labelledby="heading{{ question.question_id }}"
-            data-bs-parent="#questionsAccordion"
           >
-            <div class="accordion-body">
-              <p><strong>Marks:</strong> {{ question.marks }}</p>
-
+            <div class="accordion-body pt-0">
               <!-- Choices Display -->
               {% if question.options %}
-              <p><strong>Options:</strong></p>
-              <ul class="list-group">
-                {% for option in question.options %}
-                <li class="list-group-item">
-                  {% if option.is_correct %}
-                  <span class="badge bg-success">
-                    <i class="bi bi-check"></i>
-                  </span>
-                  {% else %}
-                  <span class="badge bg-danger"> <i class="bi bi-x"></i> </span>
-                  {% endif %}{{ option.text }}
-                </li>
-                {% endfor %}
-              </ul>
+              <div class="mt-3">
+                <p class="fw-medium mb-2">Options:</p>
+                <ul class="list-group list-group-flush">
+                  {% for option in question.options %}
+                  <li class="list-group-item border-0 py-1">
+                    <span class="d-flex align-items-center gap-2">
+                      {% if option.is_correct %}
+                      <span class="badge bg-success rounded-circle p-1">
+                        <i class="bi bi-check"></i>
+                      </span>
+                      {% else %}
+                      <span class="badge bg-danger rounded-circle p-1">
+                        <i class="bi bi-x"></i>
+                      </span>
+                      {% endif %}
+                      <span>{{ option.text }}</span>
+                    </span>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
               {% else %}
-              <p class="text-muted">No options available.</p>
+              <p class="text-muted mt-3">No options available.</p>
               {% endif %}
 
               <!-- Question Actions -->
-              <div class="mt-3 d-flex gap-2">
+              <div class="mt-4 d-flex gap-2">
                 <button
-                  class="btn btn-outline-primary btn-sm"
+                  class="btn btn-outline-primary btn px-3"
                   data-bs-toggle="modal"
                   data-bs-target="#editQuestionModal"
+                  data-bs-tooltip="tooltip"
+                  title="Edit question"
                   onclick='updateModalFormAction(
                     "{{ url_for("admin.edit_question", quiz_id=quiz.quiz_id, question_id=question.question_id) }}",
                     "editQuestionModal",
                     {{ 
                       {
                         "text": question.text,
-                        "question_type": question.question_type
-                      }
+                        "marks": question.marks,
+                        }
                     }}
                   )'
                 >
-                  <i class="bi bi-pencil-square"></i> Edit
+                  <i class="bi bi-pencil-square me-1"></i> Edit
                 </button>
 
                 <button
-                  class="btn btn-outline-danger btn-sm"
-                  onclick="handleDelete('{{ url_for('admin.delete_question', quiz_id=quiz.quiz_id, question_id=question.question_id) }}')"
+                  class="btn btn-outline-danger btn px-3"
+                  data-bs-tooltip="tooltip"
+                  title="Delete question"
+                  onclick="handleDelete('{{ url_for('admin.delete_question', quiz_id=quiz.quiz_id, question_id=question.question_id) }}', '{{ question.text }}')"
                 >
-                  <i class="bi bi-trash"></i> Delete
+                  <i class="bi bi-trash me-1"></i> Delete
                 </button>
               </div>
             </div>
@@ -135,7 +164,9 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
         {% endfor %}
       </div>
       {% else %}
-      <p class="text-muted">No questions added yet.</p>
+      <div class="text-center py-5">
+        <p class="text-muted mb-0">No questions added yet.</p>
+      </div>
       {% endif %}
     </div>
   </div>
@@ -145,7 +176,7 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
 {% import "macros.html" as macros %} {{ macros.modal_form("editQuizModal", "Edit
 Quiz", url_for('admin.edit_quiz', quiz_id=quiz.quiz_id), quiz_form) }} {{
 macros.modal_form("createQuestionModal", "Add Question",
-url_for('admin.create_question', quiz_id=quiz.quiz_id), question_form) }}
-{{macros.modal_form("editQuestionModal", "Edit Question",
+url_for('admin.create_question', quiz_id=quiz.quiz_id), question_form) }} {{
+macros.modal_form("editQuestionModal", "Edit Question",
 url_for('admin.edit_question', quiz_id=quiz.quiz_id, question_id=0),
-question_form) }} {% endblock %}
+edit_question_form) }} {% endblock %}
