@@ -3,7 +3,8 @@ from flask_login import current_user, login_user, logout_user
 from sqlalchemy import select
 
 from forms import AuthForm
-from models import User, db
+from models import db
+from models.models import User
 
 session = db.session
 
@@ -64,7 +65,7 @@ def signup():
         session.commit()
         login_user(user)
         return redirect("/user")
-    
+
     return "Not supposed to happen"
 
 
@@ -78,7 +79,7 @@ def already_authenticated():
     if current_user.username == "admin":
         return redirect("/admin")
 
-    return redirect(url_for('user.home'))
+    return redirect(url_for("user.home"))
 
 
 @auth_bp.route("/logout", methods=["GET", "POST"])

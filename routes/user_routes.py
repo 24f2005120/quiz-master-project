@@ -3,8 +3,8 @@ from flask_login import current_user, login_required
 from flask_login.utils import current_app
 from sqlalchemy import select
 
-from models import User, db
-from models.models import Quiz
+from models import Quiz, User, db
+from utils.db_utils import select_quiz
 
 session = db.session
 
@@ -23,3 +23,7 @@ def home():
     return render_template("user/home.html", upcoming_quizzes=upcoming_quizzes)
 
 
+@user_bp.route("/<int:quiz_id>", methods=["GET"])
+def quiz(quiz_id):
+    quiz = select_quiz(quiz_id)
+    return render_template("user/quiz.html", quiz=quiz)

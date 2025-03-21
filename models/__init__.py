@@ -8,4 +8,4 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-from .models import *
+from .models import Chapter, Option, Question, Quiz, Score, Subject, User

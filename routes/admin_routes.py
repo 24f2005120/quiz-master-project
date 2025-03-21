@@ -6,12 +6,10 @@ from sqlalchemy import func, select
 
 from forms import ChapterForm, QuestionForm, QuizForm, SubjectForm, editQuestionForm
 from models import db
-from models.models import Chapter, Option, Question, Quiz, Subject
-
-session = db.session
+from models import Chapter, Option, Question, Quiz, Subject
+from utils.db_utils import select_subject, select_chapter, select_quiz, select_question 
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
-
 
 @admin_bp.before_request
 def require_admin():
@@ -25,15 +23,15 @@ def admin_home():
     subject_form = SubjectForm()
     chapter_form = ChapterForm()
     quiz_form = QuizForm()
-    if request.method == "GET":
-        subjects = session.scalars(select(Subject)).all()
-        return render_template(
-            "admin/home.html",
-            subjects=subjects,
-            subject_form=subject_form,
-            chapter_form=chapter_form,
-            quiz_form=quiz_form,
-        )
+    subjects = db.session.scalars(select(Subject)).all()
+    return render_template(
+        "admin/home.html",
+        subjects=subjects,
+        subject_form=subject_form,
+        chapter_form=chapter_form,
+        quiz_form=quiz_form,
+    )
+
 
 
 @admin_bp.route("/create_subject", methods=["POST"])
@@ -50,7 +48,7 @@ def create_subject():
     form.populate_obj(new_subject)
 
     # make sure no duplicate subs
-    if session.scalar(
+    if db.session.scalar(
         select(Subject).where(Subject.subject_name == new_subject.subject_name)
     ):
         return (
@@ -66,20 +64,18 @@ def create_subject():
             400,
         )
 
-    session.add(new_subject)
-    session.commit()
+    db.session.add(new_subject)
+    db.session.commit()
     return jsonify({"message": "Subject created successfully!"})
 
 
-def select_subject(subject_id):
-    return session.scalar(select(Subject).where(Subject.subject_id == subject_id))
 
 
 @admin_bp.route("delete_subject/<int:subject_id>", methods=["DELETE", "GET"])
 def delete_subject(subject_id):
     subject = select_subject(subject_id)
-    session.delete(subject)
-    session.commit()
+    db.session.delete(subject)
+    db.session.commit()
     return jsonify({"message": f"Succesfully deleted subject {subject.subject_name}"})
 
 
@@ -93,13 +89,13 @@ def edit_subject(subject_id):
             400,
         )
     form.populate_obj(subject)
-    session.commit()
+    db.session.commit()
     return jsonify({"message": "Subject Edited Successfully"})
 
 
 @admin_bp.route("<int:subject_id>/create_chapter", methods=["POST"])
 def create_chapter(subject_id):
-    subject = session.scalar(select(Subject).where(Subject.subject_id == subject_id))
+    subject = db.session.scalar(select(Subject).where(Subject.subject_id == subject_id))
     if not subject:
         return jsonify({"errors": {"subject": ["subject not found"]}}), 400
     form = ChapterForm()
@@ -110,7 +106,7 @@ def create_chapter(subject_id):
         )  # Return errors as JSON for AJAX handling
 
     # since composite keys have to be incremented manually in sqlite
-    max_number = session.scalar(
+    max_number = db.session.scalar(
         select(func.max(Chapter.chapter_id)).where(Chapter.subject_id == subject_id)
     )
     # If there are no chapters yet, max_number will be None. Start at 1.
@@ -118,17 +114,11 @@ def create_chapter(subject_id):
 
     new_chapter = Chapter(subject_id=subject_id, chapter_id=chapter_number)
     form.populate_obj(new_chapter)
-    session.add(new_chapter)
-    session.commit()
+    db.session.add(new_chapter)
+    db.session.commit()
     return jsonify({"message": "Chapter created successfully"})
 
 
-def select_chapter(subject_id, chapter_id):
-    return session.scalar(
-        select(Chapter).where(
-            Chapter.chapter_id == chapter_id and Chapter.subject_id == subject_id
-        )
-    )
 
 
 @admin_bp.route(
@@ -136,8 +126,8 @@ def select_chapter(subject_id, chapter_id):
 )
 def delete_chapter(subject_id, chapter_id):
     chapter = select_chapter(subject_id, chapter_id)
-    session.delete(chapter)
-    session.commit()
+    db.session.delete(chapter)
+    db.session.commit()
     return jsonify({"message": f"Succesfully deleted subject {chapter.chapter_name}"})
 
 
@@ -153,7 +143,7 @@ def edit_chapter(subject_id, chapter_id):
             400,
         )
     form.populate_obj(chapter)
-    session.commit()
+    db.session.commit()
     return jsonify({"message": "Subject Edited Successfully"})
 
 
@@ -165,21 +155,19 @@ def create_quiz(subject_id, chapter_id):
         return (jsonify({"errors": form.errors}), 400)
     quiz = Quiz(subject_id=subject_id, chapter_id=chapter_id)  # unsafe
     form.populate_obj(quiz)
-    session.add(quiz)
-    session.commit()
+    db.session.add(quiz)
+    db.session.commit()
 
     return jsonify({"message": "Succesfully created empty quiz"})
 
 
-def select_quiz(quiz_id):
-    return session.scalar(select(Quiz).where(Quiz.quiz_id == quiz_id))
 
 
 @admin_bp.route("quiz/<int:quiz_id>/delete_quiz", methods=["DELETE"])
 def delete_quiz(quiz_id):
     quiz = select_quiz(quiz_id)
-    session.delete(quiz)
-    session.commit()
+    db.session.delete(quiz)
+    db.session.commit()
     return jsonify({"message": f"Succesfully deleted quiz {quiz.quiz_name}"})
 
 
@@ -195,7 +183,7 @@ def edit_quiz(quiz_id):
             return jsonify({"errors":form.errors}),400
         quiz = select_quiz(quiz_id)
         form.populate_obj(quiz)
-        session.commit()
+        db.session.commit()
         return jsonify({"message":"Succesfully edited quiz details"})
 
     return render_template(
@@ -209,10 +197,8 @@ def edit_quiz(quiz_id):
 
 @admin_bp.route("quiz")
 def quizzes():
-    pass
+    return "hi"
 
-def select_question(question_id):
-    return session.scalar(select(Question).where(Question.question_id==question_id))
 
 @admin_bp.route("quiz/<int:quiz_id>/create_question", methods=["POST", "GET"])
 def create_question(quiz_id):
@@ -228,8 +214,8 @@ def create_question(quiz_id):
         question = Question(quiz_id=quiz_id)
         question.text = form.text.data
         question.marks = form.marks.data
-        session.add(question)
-        session.flush() # Flush to get question_id
+        db.session.add(question)
+        db.session.flush() # Flush to get question_id
 
         # Clear existing options and add new ones - Manual Assignment (Correct)
         question.options = [] # Clear existing options
@@ -267,7 +253,7 @@ def edit_question(quiz_id, question_id):
         question = Question(quiz_id=quiz_id)
         question.text = form.text.data
         question.marks = form.marks.data
-        session.flush() # Flush to get question_id
+        db.session.flush() # Flush to get question_id
 
         db.session.commit()
         return jsonify({"message": "Successfully updated question"})

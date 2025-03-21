@@ -5,7 +5,7 @@ from flask_login import UserMixin
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from models import db
+from . import db
 
 # handy custom types
 id_pk = Annotated[int, mapped_column(primary_key=True, autoincrement=True)]
