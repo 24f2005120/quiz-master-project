@@ -219,6 +219,7 @@ def create_question(quiz_id):
 
         # Clear existing options and add new ones - Manual Assignment (Correct)
         question.options = [] # Clear existing options
+        num_correct = 0
         for option_form in form.options:
             if option_form.text.data:
                 option = Option(
@@ -227,6 +228,13 @@ def create_question(quiz_id):
                     is_correct=option_form.is_correct.data
                 )
                 db.session.add(option)
+                if option_form.is_correct.data:
+                    num_correct +=1
+
+        if num_correct == 0:
+            return jsonify({"errors": ["no correct options given"]}), 400
+        if num_correct > 1:
+            question.is_msq = True
 
         db.session.commit()
         return jsonify({"message": "Successfully updated question"})    # GET request should not be directly accessed, modal form is used.
