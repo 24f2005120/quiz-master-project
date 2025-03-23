@@ -24,7 +24,7 @@ endblock %} {% block body %} {% include "user/nav.html" %}
             <li class="mb-2">
               <input
                 type="{{type}}"
-                name="{{ question.question_id }}"
+                name="question_{{ question.question_id }}[]"
                 id="option_{{ option.option_id }}"
                 value="{{ option.option_id }}"
               />

@@ -2,6 +2,9 @@ from sqlalchemy import select
 
 from models import Chapter, Question, Quiz, Subject, db
 
+# yes i could have made this a single function and very dry but
+# this way just felt a bit more natural yk
+# less scalable, slightly more readable
 
 def select_subject(subject_id):
     return db.session.scalar(select(Subject).where(Subject.subject_id == subject_id))
@@ -22,4 +25,9 @@ def select_quiz(quiz_id):
 def select_question(question_id:int)->Question|None: #just playing a bit with pythons type annotations
     return db.session.scalar(
         select(Question).where(Question.question_id == question_id)
+    )
+
+def select_option(option_id):
+    return db.session.scalar(
+        select(Option).where(Option.option_id == option_id)
     )

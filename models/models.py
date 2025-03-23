@@ -67,6 +67,8 @@ class Quiz(db.Model):
     duration: Mapped[Optional[int]]  # minutes? hopefully
     remarks: Mapped[str]
 
+    total_marks: Mapped[int] = mapped_column(default=0)
+
     questions: Mapped[List["Question"]] = relationship(
         back_populates="quiz", cascade="all,delete-orphan"
     )
@@ -121,7 +123,7 @@ class QuizAttempt(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.user_id"))
     # start_time: Mapped[time]
     # end_time: Mapped[time]
-    total_score: Mapped[int]
+    total_score: Mapped[float]
     percentage: Mapped[float]
 
     quiz: Mapped["Quiz"] = relationship(back_populates="quiz_attempts")
@@ -136,7 +138,7 @@ class QuestionAttempt(db.Model):
     quiz_attempt_id: Mapped[int] = mapped_column(ForeignKey("quiz_attempt.id"))
     question_id: Mapped[int] = mapped_column(ForeignKey("question.question_id"))
 
-    marks_gained: Mapped[int] = mapped_column(default=0)
+    marks_gained: Mapped[float] = mapped_column(default=0)
 
     quiz_attempt: Mapped["QuizAttempt"] = relationship(back_populates="question_attempts")
     selected_options: Mapped[List["Option"]] = relationship(
