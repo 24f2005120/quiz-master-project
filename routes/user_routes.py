@@ -66,14 +66,18 @@ def submit_quiz(quiz_id):
         db.session.flush()
 
         # list of selected option_id's
-        selected_options = list(map(int, request.form.getlist(f"question_{question.question_id}[]")))
+        selected_options = list(
+            map(int, request.form.getlist(f"question_{question.question_id}[]"))
+        )
 
         marks_for_q = question.marks
         correctness = 0
         correct_opts = db.session.scalar(
             select(func.count())
             .select_from(Option)
-            .where(Option.question_id == question.question_id, Option.is_correct==True)
+            .where(
+                Option.question_id == question.question_id, Option.is_correct == True
+            )
         )
         for option in question.options:
             if option.option_id in selected_options:
@@ -85,16 +89,24 @@ def submit_quiz(quiz_id):
                     correctness -= 1 / correct_opts
 
         marks_gained = marks_for_q * correctness
-        marks_gained = marks_gained if marks_gained > 0 else 0 
+        marks_gained = marks_gained if marks_gained > 0 else 0
         print(marks_gained)
         question_attempt.marks_gained = marks_gained
         total_score += marks_gained
 
-    quiz_attempt.total_score = total_score
+    quiz_attempt.total_score = round(total_score)
     db.session.commit()
-    return redirect(url_for('results',quiz_attempt_id=quiz_attempt.id))
+    return redirect(url_for("user.results", quiz_attempt_id=quiz_attempt.id))
+
 
 @user_bp.route("/past_attempts/<int:quiz_attempt_id>", methods=["GET"])
 def results(quiz_attempt_id):
+    quiz_attempt = db.session.scalar(
+        select(QuizAttempt).where(QuizAttempt.id == quiz_attempt_id)
+    )
+    return render_template("user/results.html", quiz_attempt=quiz_attempt)
 
-    return render_template("user/results.html")
+@user_bp.route("/past_attempts", methods=["GET"])
+def history():
+    return render_template("user/history.html", user = current_user)
+

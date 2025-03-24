@@ -1,7 +1,128 @@
-from app import create_app
 import random
+from datetime import date, timedelta
+
+from sqlalchemy import func, select
+
+from app import create_app
 from models import *
+
 app = create_app()
+
+def generate_random_string(length=20):
+    """Generates a random string of given length."""
+    characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
+    return "".join(random.choice(characters) for _ in range(length))
+
+def generate_random_date():
+    """Generates a random date within a reasonable past range."""
+    start_date = date.today() - timedelta(days=365) # Up to a year ago
+    end_date = date.today()
+    time_between_dates = end_date - start_date
+    days_between_dates = time_between_dates.days
+    random_number_of_days = random.randrange(days_between_dates)
+    return start_date + timedelta(days=random_number_of_days)
+
+def generate_random_duration():
+    """Generates a random quiz duration in minutes (optional, up to 120 minutes)."""
+    return random.randint(15, 120) if random.random() < 0.7 else None # 70% chance of having duration
+
+def generate_random_remarks():
+    """Generates random remarks (optional)."""
+    return generate_random_string(50) if random.random() < 0.5 else "" # 50% chance of remarks
+
+def generate_random_subject():
+    """Generates a random Subject instance."""
+    return Subject(
+        subject_name=f"Subject - {generate_random_string(10).strip()}",
+        description=generate_random_string(50)
+    )
+
+def generate_random_chapter(subject: Subject):
+    """Generates a random Chapter instance for a given Subject."""
+    # since composite keys have to be incremented manually in sqlite
+    max_number = db.session.scalar(
+        select(func.max(Chapter.chapter_id)).where(Chapter.subject_id == subject.subject_id)
+    )
+    # If there are no chapters yet, max_number will be None. Start at 1.
+    chapter_number = (max_number or 0) + 1
+
+    return Chapter(
+        subject_id=subject.subject_id,
+        chapter_id=chapter_number,
+        chapter_name=f"Chapter - {generate_random_string(10).strip()}",
+        description=generate_random_string(50),
+        subject=subject
+    )
+
+def generate_random_quiz(subject: Subject, chapter: Chapter):
+    """Generates a random Quiz instance for a given Chapter and Subject."""
+    return Quiz(
+        quiz_name=f"Quiz - {generate_random_string(10).strip()}",
+        chapter_id=chapter.chapter_id,
+        subject_id=subject.subject_id,
+        date=generate_random_date() if random.random() < 0.8 else None, # 80% chance of having a date
+        duration=generate_random_duration(),
+        remarks=generate_random_remarks(),
+        chapter=chapter
+    )
+
+def generate_random_question(quiz: Quiz):
+    """Generates a random Question instance for a given Quiz."""
+    return Question(
+        quiz_id=quiz.quiz_id,
+        text=f"Question - {generate_random_string(30).strip()}?",
+        marks=random.randint(1, 5),
+        is_msq=random.random() < 0.3, # 30% chance of being MSQ
+        quiz=quiz
+)
+
+def generate_random_option(question: Question, is_correct: bool):
+    """Generates a random Option instance for a given Question."""
+    return Option(
+        question_id=question.question_id,
+        text=f"Option - {generate_random_string(20).strip()}",
+        is_correct=is_correct,
+        question=question
+    )
+
+def populate_database(session, num_subjects=3, chapters_per_subject=2, quizzes_per_chapter=2, questions_per_quiz=5, options_per_question=4):
+    """Populates the database with random data."""
+    subjects = []
+    for _ in range(num_subjects):
+        subject = generate_random_subject()
+        session.add(subject)
+        subjects.append(subject)
+
+    chapters = []
+    for subject in subjects:
+        for _ in range(chapters_per_subject):
+            chapter = generate_random_chapter(subject)
+            session.add(chapter)
+            chapters.append(chapter)
+
+    quizzes = []
+    for chapter in chapters:
+        for _ in range(quizzes_per_chapter):
+            quiz = generate_random_quiz(chapter.subject, chapter)
+            session.add(quiz)
+            quizzes.append(quiz)
+
+    questions_list = [] # to keep track of all questions for option generation later
+    for quiz in quizzes:
+        for _ in range(questions_per_quiz):
+            question = generate_random_question(quiz)
+            session.add(question)
+            questions_list.append(question)
+
+    for question in questions_list:
+        correct_option_index = random.randint(0, options_per_question - 1) # Decide which option is correct
+        for i in range(options_per_question):
+            is_correct = (i == correct_option_index)
+            option = generate_random_option(question, is_correct)
+            session.add(option)
+
+    session.commit()
+    print("Database populated with random data.")
 
 with app.app_context():
     db.drop_all()
@@ -89,6 +210,8 @@ with app.app_context():
 
 
     db.session.commit()
+    
+    populate_database(db.session)
 
     print("Dummy data created successfully!")
 

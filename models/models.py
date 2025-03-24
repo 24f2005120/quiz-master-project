@@ -123,7 +123,7 @@ class QuizAttempt(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.user_id"))
     # start_time: Mapped[time]
     # end_time: Mapped[time]
-    total_score: Mapped[float]
+    total_score: Mapped[int]
     percentage: Mapped[float]
 
     quiz: Mapped["Quiz"] = relationship(back_populates="quiz_attempts")
@@ -141,6 +141,7 @@ class QuestionAttempt(db.Model):
     marks_gained: Mapped[float] = mapped_column(default=0)
 
     quiz_attempt: Mapped["QuizAttempt"] = relationship(back_populates="question_attempts")
+    question: Mapped["Question"] = relationship()
     selected_options: Mapped[List["Option"]] = relationship(
         secondary="selected_option",
         back_populates="question_attempts"

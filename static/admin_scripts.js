@@ -41,3 +41,46 @@ function handleDelete(url) {
     })
     .catch(() => showToast("Error deleting item", "danger"));
 }
+
+// admin search
+function searchContent() {
+  let input = document.getElementById("searchInput").value.toLowerCase();
+  let subjects = document.querySelectorAll(".col");
+
+  subjects.forEach((subject) => {
+    let subjectName = subject.querySelector("h4").innerText.toLowerCase();
+    let chapters = subject.querySelectorAll(".accordion-item");
+    let subjectMatch = subjectName.includes(input);
+    let chapterMatch = false;
+
+    chapters.forEach((chapter) => {
+      let chapterName = chapter.querySelector(".accordion-button strong").innerText.toLowerCase();
+      let quizzes = chapter.querySelectorAll(".list-group-item");
+      let chapterHasMatch = chapterName.includes(input);
+      let quizMatch = false;
+
+      quizzes.forEach((quiz) => {
+        let quizName = quiz.querySelector("a").innerText.toLowerCase();
+        if (quizName.includes(input)) {
+          quiz.style.display = "";
+          quizMatch = true;
+        } else {
+          quiz.style.display = "none";
+        }
+      });
+
+      if (quizMatch || chapterHasMatch) {
+        chapter.style.display = "";
+        chapterMatch = true;
+      } else {
+        chapter.style.display = "none";
+      }
+    });
+
+    if (subjectMatch || chapterMatch) {
+      subject.style.display = "";
+    } else {
+      subject.style.display = "none";
+    }
+  });
+}

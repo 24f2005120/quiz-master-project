@@ -105,3 +105,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+function searchContentUser() {
+  let input = document.getElementById("searchInput").value.toLowerCase();
+  let quizCards = document.getElementsByClassName("quiz-card");
+
+  for (let card of quizCards) {
+    let title = card.querySelector(".fw-semibold").innerText.toLowerCase();
+    if (title.includes(input)) {
+      card.style.display = "";
+    } else {
+      card.style.display = "none";
+    }
+  }
+}
+
