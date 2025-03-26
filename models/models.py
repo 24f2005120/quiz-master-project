@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date, datetime, time
 from typing import Annotated, List, Optional
 
 from flask_login import UserMixin
@@ -10,6 +10,7 @@ from . import db
 # handy custom types
 id_pk = Annotated[int, mapped_column(primary_key=True, autoincrement=True)]
 
+# user class
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"
@@ -25,6 +26,7 @@ class User(db.Model, UserMixin):
     def get_id(self): # just makes wtforms auth work
         return self.user_id # by default configured to self.id, but i named it as user_id from the start so 
 
+# organization classes
 
 class Subject(db.Model):
     __tablename__ = "subject"
@@ -35,7 +37,6 @@ class Subject(db.Model):
     chapters: Mapped[List["Chapter"]] = relationship(
         back_populates="subject", cascade="all,delete-orphan"
     )
-
 
 class Chapter(db.Model):
     __tablename__ = "chapter"
@@ -51,6 +52,7 @@ class Chapter(db.Model):
         back_populates="chapter",
     )
 
+# quiz classes
 
 class Quiz(db.Model):
     __tablename__ = "quiz"
@@ -98,7 +100,6 @@ class Question(db.Model):
     )
     is_msq: Mapped[bool] = mapped_column(default=False)
 
-
 class Option(db.Model):
     __tablename__ = "option"
     option_id: Mapped[id_pk]
@@ -114,6 +115,7 @@ class Option(db.Model):
         back_populates="selected_options"
     )
 
+# score classes
 
 class QuizAttempt(db.Model):
     __tablename__ = 'quiz_attempt'
@@ -121,15 +123,14 @@ class QuizAttempt(db.Model):
     id: Mapped[id_pk]
     quiz_id: Mapped[int] = mapped_column(ForeignKey("quiz.quiz_id"))
     user_id: Mapped[int] = mapped_column(ForeignKey("user.user_id"))
-    # start_time: Mapped[time]
-    # end_time: Mapped[time]
-    total_score: Mapped[int]
+    start_time: Mapped[datetime]
+    time_taken: Mapped[int] # time in minutes  maybe seconds? minutes is better we don't need seconds
+    total_score: Mapped[float]
     percentage: Mapped[float]
 
     quiz: Mapped["Quiz"] = relationship(back_populates="quiz_attempts")
     user: Mapped["User"] = relationship(back_populates="quiz_attempts")
     question_attempts: Mapped[List["QuestionAttempt"]]=relationship(back_populates="quiz_attempt")
-
 
 class QuestionAttempt(db.Model):
     __tablename__ = 'question_attempt'

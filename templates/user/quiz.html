@@ -4,8 +4,15 @@ endblock %} {% block body %} {% include "user/nav.html" %}
 <div class="container py-5">
   <h2 class="mb-4 fw-bold">{{ quiz.quiz_name }}</h2>
 
+  {%if quiz.duration > 0%}
+  <div class="alert alert-info" role="alert">
+    Time Remaining: <span id="timer"></span>
+  </div>
+  {% endif %}
+
   <form
     method="POST"
+    id="quiz-form"
     action="{{ url_for('user.submit_quiz', quiz_id=quiz.quiz_id) }}"
   >
     {% if quiz.questions %} {% for question in quiz.questions %}
@@ -49,9 +56,53 @@ endblock %} {% block body %} {% include "user/nav.html" %}
       <button type="submit" class="btn btn-primary btn-lg px-4">
         Submit Quiz
       </button>
+      <!--not actually going to save this time taken thing because its not secure, but we can use it to compare and make sure-->
+      <input type="hidden" id="time_taken" name="time_taken" value="0" />
     </div>
     {% endif %}
   </form>
 </div>
+{% if quiz.duration %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const durationMinutes = {{ quiz.duration }}; // Duration from quiz object
+    const startTime = new Date().getTime(); // Quiz start time
+    const endTime = startTime + durationMinutes * 60 * 1000; // Quiz end time
+    const timerDisplay = document.getElementById("timer");
+    const quizForm = document.getElementById("quiz-form");
+    const timeTakenInput = document.getElementById("time_taken");
 
-{% endblock %}
+    function updateTimer() {
+      const currentTime = new Date().getTime();
+      const timeLeft = endTime - currentTime;
+
+      if (timeLeft <= 0) {
+        timerDisplay.textContent = "Time's up!";
+        clearInterval(timerInterval);
+        timeTakenInput.value = formatTimeTaken(currentTime-endTime); // Set full duration as time taken on timeout
+        quizForm.submit(); // Automatically submit the form
+      } else {
+        const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
+        const seconds = Math.floor((timeLeft / 1000) % 60);
+        timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+      }
+    }
+
+    function formatTimeTaken(timeInMillis) {
+        const minutes = Math.floor((timeInMillis / (1000 * 60)));
+        const seconds = Math.floor((timeInMillis / 1000) % 60);
+        return `${minutes}`;
+    }
+
+    updateTimer(); // Initial call to set timer immediately
+    const timerInterval = setInterval(updateTimer, 1000); // Update timer every second
+
+    quizForm.addEventListener('submit', function() {
+        clearInterval(timerInterval); // Stop timer when form is manually submitted
+        const endTimeManualSubmit = new Date().getTime();
+        const timeDiff = endTimeManualSubmit - startTime;
+        timeTakenInput.value = formatTimeTaken(timeDiff); // Set actual time taken
+    });
+  });
+</script>
+{% endif %} {% endblock %}

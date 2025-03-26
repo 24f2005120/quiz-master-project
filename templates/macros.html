@@ -69,13 +69,11 @@ parent_class=None) %}
           <button
             type="button"
             id="add-option-btn"
-            class="btn btn-secondary btn-sm mt-2"
+            class="btn btn-secondary btn mt-2"
           >
             + Add Option
           </button>
-          <button type="submit" class="btn btn-success btn-sm mt-2">
-            Submit
-          </button>
+          <button type="submit" class="btn btn-success btn mt-2">Submit</button>
           {% else %} {# For other forms (not QuestionForm), render fields as
           before #} {% for field in form if field.widget.input_type != 'hidden'
           %}
@@ -93,7 +91,7 @@ parent_class=None) %}
             {% endif %}
           </div>
           {% endfor %}
-          <button type="submit" class="btn btn-success btn-sm">Submit</button>
+          <button type="submit" class="btn btn-success btn">Submit</button>
           {% endif %} {# End of QuestionForm check #}
         </form>
       </div>

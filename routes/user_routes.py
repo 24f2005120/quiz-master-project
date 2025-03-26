@@ -1,5 +1,7 @@
-from flask import (Blueprint, jsonify, redirect, render_template, request,
-                   url_for)
+from datetime import datetime, timedelta, timezone
+
+from flask import (Blueprint, app, jsonify, redirect, render_template, request,
+                   session, url_for)
 from flask_login import current_user, login_required
 from flask_login.utils import current_app
 from sqlalchemy import func, select
@@ -26,8 +28,9 @@ def home():
 @user_bp.route("/<int:quiz_id>", methods=["GET"])
 def quiz(quiz_id):
     quiz = select_quiz(quiz_id)
-    # ok-ish unreadable list comprehension
-    # makes a list that tells whether or not to make this question checkbox instead of radio in the tmeplate
+    session[f"quiz{quiz_id}_start_time"] = datetime.now(
+        timezone.utc
+    )  # Record start time in session
     return render_template("user/quiz.html", quiz=quiz)
 
 
@@ -43,13 +46,33 @@ def quiz(quiz_id):
 def submit_quiz(quiz_id):
 
     quiz = select_quiz(quiz_id)
+    if not quiz:
+        return 404
+
+    # time calculation
+    start_time = session.pop(f"quiz{quiz_id}_start_time")
+    end_time = datetime.now(timezone.utc)
+    time_taken = end_time - start_time
+    time_taken = (
+        int(time_taken.total_seconds()) // 60
+    )  # everything going to be stored in minutes in the backend
+    frontend_time = int(request.form.get("time_taken"))
+
+    if not (
+        time_taken - 5 < frontend_time < time_taken + 5
+        or time_taken > quiz.duration + 5
+    ):  # prevents eggregious time_taken manipulation hopefully
+        raise TimeoutError
 
     quiz_attempt = QuizAttempt(
         quiz_id=quiz.quiz_id,
         user_id=current_user.user_id,
         total_score=0,  # Initialize, will calculate later
         percentage=0.0,  # Initialize, will calculate later
+        start_time=start_time,
+        time_taken=time_taken,
     )
+
     db.session.add(quiz_attempt)
     db.session.flush()
 
@@ -94,7 +117,8 @@ def submit_quiz(quiz_id):
         question_attempt.marks_gained = marks_gained
         total_score += marks_gained
 
-    quiz_attempt.total_score = round(total_score)
+    quiz_attempt.total_score = round(total_score, 2)
+
     db.session.commit()
     return redirect(url_for("user.results", quiz_attempt_id=quiz_attempt.id))
 
@@ -106,7 +130,7 @@ def results(quiz_attempt_id):
     )
     return render_template("user/results.html", quiz_attempt=quiz_attempt)
 
+
 @user_bp.route("/past_attempts", methods=["GET"])
 def history():
-    return render_template("user/history.html", user = current_user)
-
+    return render_template("user/history.html", user=current_user)
