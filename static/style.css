@@ -22,8 +22,8 @@
   text-align: center;
   line-height: 30px; /* line-height should be equal to bar height */
   overflow: hidden;
-  color: #f99;
-  mix-blend-mode: difference; 
+  color: #333;
+  mix-blend-mode:darken; 
   right: 0;
   left: 0;
   top: 0;

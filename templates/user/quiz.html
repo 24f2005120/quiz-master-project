@@ -1,24 +1,33 @@
 {% extends "base.html" %} {% block title %} {{ quiz.quiz_name }} - Quiz {%
 endblock %} {% block body %}
-
-<div class="container sticky-top" style="padding-top: 10px">
+<div class="container sticky-top pt-3">
   <div class="card shadow-sm border-0">
-    <div class="card-body p-3 row">
-      <h4 class="card-title fw-semibold mb-3 col-4">
-        {{ quiz.quiz_name }} {%if quiz.duration > 0%}
-      </h4>
-      <div class="progress col-8" role="progressbar" style="height: 35px">
-        <div
-          id="timer-bar"
-          class="progress-bar overflow-visible text-light text-center bg-warning p-3"
-          style="width: 0%"
-        >
-          <div class="progress-bar-title">
-            Time Remaining: <span id="timer"></span>
+    <div class="card-body p-3">
+      <div class="d-flex align-items-center">
+        <div class="me-5">
+          <h2 class="card-title fw-semibold mb-0">{{ quiz.quiz_name }}</h2>
+        </div>
+        {% if quiz.duration %}
+        <div class="flex-grow-1 mt-1">
+          <!-- Make progress bar take remaining space -->
+          <div
+            class="progress shadow-sm"
+            role="progressbar"
+            style="height: 35px"
+          >
+            <div
+              id="timer-bar"
+              class="progress-bar overflow-visible text-light text-center bg-warning"
+              style="width: 100%"
+            >
+              <h5 class="progress-bar-title">
+                Time Remaining: <span id="timer"></span>
+              </h5>
+            </div>
           </div>
         </div>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
   </div>
 </div>
