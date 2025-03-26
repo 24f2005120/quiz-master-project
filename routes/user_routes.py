@@ -118,6 +118,7 @@ def submit_quiz(quiz_id):
         total_score += marks_gained
 
     quiz_attempt.total_score = round(total_score, 2)
+    quiz_attempt.percentage = round(total_score*100/quiz.total_marks,2)
 
     db.session.commit()
     return redirect(url_for("user.results", quiz_attempt_id=quiz_attempt.id))

@@ -45,6 +45,9 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
         <dt class="col-sm-3">Remarks:</dt>
         <dd class="col-sm-9">{{ quiz.remarks }}</dd>
 
+        <dt class="col-sm-3">Total Marks:</dt>
+        <dd class="col-sm-9">{{ quiz.total_marks}}</dd>
+
         {% if quiz.date %}
         <dt class="col-sm-3">Scheduled:</dt>
         <dd class="col-sm-9">{{ quiz.date }}</dd>
