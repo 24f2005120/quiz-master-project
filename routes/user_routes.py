@@ -33,15 +33,10 @@ def quiz(quiz_id):
     )  # Record start time in session
     return render_template("user/quiz.html", quiz=quiz)
 
-
-#
 # NOT using wtform validation here,
 # because its kinda a pain to implement
 # and it is just mcq/msq not numeric or anything anyways,
 # so the benefit is minimal
-#
-
-
 @user_bp.route("/<int:quiz_id>/submit", methods=["POST"])
 def submit_quiz(quiz_id):
 
@@ -123,14 +118,12 @@ def submit_quiz(quiz_id):
     db.session.commit()
     return redirect(url_for("user.results", quiz_attempt_id=quiz_attempt.id))
 
-
 @user_bp.route("/past_attempts/<int:quiz_attempt_id>", methods=["GET"])
 def results(quiz_attempt_id):
     quiz_attempt = db.session.scalar(
         select(QuizAttempt).where(QuizAttempt.id == quiz_attempt_id)
     )
     return render_template("user/results.html", quiz_attempt=quiz_attempt)
-
 
 @user_bp.route("/past_attempts", methods=["GET"])
 def history():

@@ -1,13 +1,16 @@
+from statistics import mean
 from flask import (Blueprint, jsonify, redirect, render_template, request,
                    url_for)
 from flask_login import current_user
 from flask_login.utils import current_app
 from sqlalchemy import func, select
 
-from forms import ChapterForm, QuestionForm, QuizForm, SubjectForm, editQuestionForm
-from models import db
-from models import Chapter, Option, Question, Quiz, Subject
-from utils.db_utils import select_subject, select_chapter, select_quiz, select_question 
+from forms import (ChapterForm, QuestionForm, QuizForm, SubjectForm,
+                   editQuestionForm)
+from models import Chapter, Option, Question, Quiz, Subject, db
+from models.models import QuizAttempt, User
+from utils.db_utils import (select_chapter, select_question, select_quiz,
+                            select_subject)
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -30,6 +33,49 @@ def admin_home():
         chapter_form=chapter_form,
         quiz_form=quiz_form,
     )
+
+@admin_bp.route("/quizzes", methods=["GET"])
+def admin_quizzes():
+    all_quizzes = db.session.scalars(select(Quiz))
+    return render_template("admin/quizzes.html", quizzes=all_quizzes)
+
+@admin_bp.route("/users", methods=["GET"])
+def admin_users():
+    users = db.session.scalars(select(User))
+
+    user_data = {}
+
+    for user in users:
+        subject_averages = {}  # Dictionary to store averages per subject for this user
+
+        # Efficiently fetch average scores for all subjects for this user in a single query
+        results = db.session.execute(
+            select(
+                Subject.subject_id,  # Select subject ID
+                Subject.subject_name,        # Select subject name (for labels)
+                func.avg(QuizAttempt.total_score).label('average_score') # Calculate average score, label it
+            )
+            .join(Quiz, Quiz.subject_id == Subject.subject_id)  # Join Quiz to Subject
+            .join(QuizAttempt, QuizAttempt.quiz_id == Quiz.quiz_id) # Join QuizAttempt to Quiz
+            .where(QuizAttempt.user_id == user.user_id)  # Filter by user
+            .group_by(Subject.subject_id, Subject.subject_name)  # Group by subject to get per-subject averages
+        ).all()
+
+        for subject_id, subject_name, average_score in results:
+            subject_averages[subject_name] = average_score
+
+        user_data[user.user_id] = {
+            "labels": list(subject_averages.keys()),  # Subject names as labels
+            "data": list(subject_averages.values())  # Average scores as data
+        }
+    print(user_data)
+
+    users = db.session.scalars(select(User))
+    return render_template("admin/users.html", users=users, user_data=user_data)
+
+@admin_bp.route("/user_details/<int:user_id>")
+def user_details(user_id):
+    return render_template("admin/users.html", users=users)
 
 @admin_bp.route("/create_subject", methods=["POST"])
 def create_subject():
@@ -147,7 +193,6 @@ def create_quiz(subject_id, chapter_id):
 
     return jsonify({"message": "Succesfully created empty quiz"})
 
-
 @admin_bp.route("quiz/<int:quiz_id>/delete_quiz", methods=["DELETE"])
 def delete_quiz(quiz_id):
     quiz = select_quiz(quiz_id)
@@ -226,7 +271,6 @@ def create_question(quiz_id):
         return jsonify({"message": "Successfully updated question"})    # GET request should not be directly accessed, modal form is used.
 
     return jsonify({"errors": ["GET method not allowed for this route"]}), 405
-
 
 @admin_bp.route("quiz/<int:quiz_id>/question/<int:question_id>", methods=["GET", "POST", "DELETE"])
 def edit_question(quiz_id, question_id):
