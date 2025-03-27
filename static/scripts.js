@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
   });
-  // Add Option Button Functionality
+  // Add Option Button Functionality // shoudl ideally be seperate admin
   const addOptionBtn = document.getElementById('add-option-btn');
   if (addOptionBtn) { // Check if the button exists on the page
     addOptionBtn.addEventListener('click', function () {

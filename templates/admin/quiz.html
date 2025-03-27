@@ -156,7 +156,7 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
                   class="btn btn-outline-danger btn px-3"
                   data-bs-tooltip="tooltip"
                   title="Delete question"
-                  onclick="handleDelete('{{ url_for('admin.delete_question', quiz_id=quiz.quiz_id, question_id=question.question_id) }}', '{{ question.text }}')"
+                  onclick="handleDelete('{{ url_for('admin.edit_question', quiz_id=quiz.quiz_id, question_id=question.question_id) }}', '{{ question.text }}')"
                 >
                   <i class="bi bi-trash me-1"></i> Delete
                 </button>

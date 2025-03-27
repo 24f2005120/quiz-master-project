@@ -262,7 +262,7 @@ def create_question(quiz_id):
                     num_correct +=1
 
         if num_correct == 0:
-            return jsonify({"errors": ["no correct options given"]}), 400
+            return jsonify({"errors": {"Option Error": ["no correct options given"]}}), 400
         if num_correct > 1:
             question.is_msq = True
 
@@ -299,19 +299,10 @@ def edit_question(quiz_id, question_id):
         recalculate_quiz_score(quiz)
         db.session.delete(question)
         db.session.commit()
+        recalculate_quiz_score(quiz)
         return jsonify({"message": "Successfully deleted question"})
 
     # GET request to render edit form
     form = QuestionForm(obj=question) # Populate form for editing
     return render_template("admin/quiz.html", quiz=quiz, quiz_form=QuizForm(obj=quiz), question_form=form, quiz_id=quiz_id, question_id=question_id) # Re-render quiz page, adjust if needed
 
-@admin_bp.route("quiz/<int:quiz_id>/question/<int:question_id>/delete_question", methods=["DELETE"])
-def delete_question(quiz_id, question_id): # Separate delete route # to remove
-    question = select_question(question_id)
-    if not question:
-        return jsonify({"errors": [f"Question with question_id {question_id} not found"]}), 404
-
-    db.session.delete(question)
-    db.session.commit()
-    recalculate_quiz_score(quiz)
-    return jsonify({"message": "Successfully deleted question"})
