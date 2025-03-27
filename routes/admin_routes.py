@@ -41,7 +41,9 @@ def admin_quizzes():
 
 @admin_bp.route("/users", methods=["GET"])
 def admin_users():
-    users = db.session.scalars(select(User).where(User.username!='admin'))
+    # the reason we convert to a list is by default ScalarResult is an iterator
+    # so after the first loop it gets exauhsted
+    users = list(db.session.scalars(select(User).where(User.username!='admin')))
 
     user_data = {}
 
@@ -69,8 +71,6 @@ def admin_users():
             "data": list(subject_averages.values())  # Average scores as data
         }
     print(user_data)
-    # im not sure why, but iterating through users deletes data, so ther users must be reinitialized the exact same way
-    users = db.session.scalars(select(User).where(User.username!='admin')) 
     return render_template("admin/users.html", users=users, user_data=user_data)
 
 @admin_bp.route("/user_details/<int:user_id>")

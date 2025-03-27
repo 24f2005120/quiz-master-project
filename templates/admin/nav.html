@@ -22,12 +22,18 @@
           >
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{url_for('admin.admin_quizzes')}}"
+          <a
+            class="nav-link {{is_active('admin.edit_quiz')}} {{is_active('admin.admin_quiz')}}"
+            href="{{url_for('admin.admin_quizzes')}}"
             >Quizzes</a
           >
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{url_for('admin.admin_users')}}">Users</a>
+          <a
+            class="nav-link {{is_active('admin.admin_users')}}"
+            href="{{url_for('admin.admin_users')}}"
+            >Users</a
+          >
         </li>
       </ul>
       <ul class="navbar-nav">

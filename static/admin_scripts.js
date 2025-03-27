@@ -83,4 +83,20 @@ function searchContent() {
       subject.style.display = "none";
     }
   });
+
 }
+function searchUser() {
+  let input = document.getElementById("searchInput").value.toLowerCase();
+  let users = document.querySelectorAll(".col");
+
+  users.forEach((user) => {
+    let userName = user.querySelector("h5").innerText.toLowerCase();
+    let userMatch = userName.includes(input);
+    if (userMatch) {
+      user.style.display = "";
+    } else {
+      user.style.display = "none";
+    }
+  });
+}
+
