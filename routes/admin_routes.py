@@ -41,7 +41,7 @@ def admin_quizzes():
 
 @admin_bp.route("/users", methods=["GET"])
 def admin_users():
-    users = db.session.scalars(select(User))
+    users = db.session.scalars(select(User).where(User.username!='admin'))
 
     user_data = {}
 
@@ -53,7 +53,7 @@ def admin_users():
             select(
                 Subject.subject_id,  # Select subject ID
                 Subject.subject_name,        # Select subject name (for labels)
-                func.avg(QuizAttempt.total_score).label('average_score') # Calculate average score, label it
+                func.avg(QuizAttempt.percentage).label('average_score') # Calculate average score, label it
             )
             .join(Quiz, Quiz.subject_id == Subject.subject_id)  # Join Quiz to Subject
             .join(QuizAttempt, QuizAttempt.quiz_id == Quiz.quiz_id) # Join QuizAttempt to Quiz
@@ -69,8 +69,8 @@ def admin_users():
             "data": list(subject_averages.values())  # Average scores as data
         }
     print(user_data)
-
-    users = db.session.scalars(select(User))
+    # im not sure why, but iterating through users deletes data, so ther users must be reinitialized the exact same way
+    users = db.session.scalars(select(User).where(User.username!='admin')) 
     return render_template("admin/users.html", users=users, user_data=user_data)
 
 @admin_bp.route("/user_details/<int:user_id>")

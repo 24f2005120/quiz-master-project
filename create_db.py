@@ -7,7 +7,7 @@ with app.app_context():
     db.drop_all()
     db.create_all()
 
-    admin = User(username="admin", password="password")
+    admin = User(user_id="0", username="admin", password="password")
 
     db.session.add(admin)
     db.session.commit()
