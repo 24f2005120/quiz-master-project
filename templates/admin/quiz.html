@@ -87,7 +87,7 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
               type="button"
               data-bs-toggle="collapse"
               data-bs-target="#collapse{{ question.question_id }}"
-              aria-expanded="false"
+              aria-expanded="true"
               aria-controls="collapse{{ question.question_id }}"
             >
               <div class="d-flex align-items-center gap-2 w-100">
@@ -99,7 +99,7 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
           </h2>
           <div
             id="collapse{{ question.question_id }}"
-            class="accordion-collapse collapse"
+            class="accordion-collapse expand"
             aria-labelledby="heading{{ question.question_id }}"
           >
             <div class="accordion-body pt-0">

@@ -76,7 +76,7 @@ def admin_users():
 
 @admin_bp.route("/user_details/<int:user_id>")
 def user_details(user_id):
-    user = select_user(user_id)
+    user = db.session.scalar(select(User).where(User.user_id==user_id))
     return render_template("admin/history.html", user=user)
 
 @admin_bp.route("/create_subject", methods=["POST"])
