@@ -1,5 +1,5 @@
 {% macro modal_form(modal_id, title, action, form, parent_id=None,
-parent_class=None) %}
+parent_class=None, redirect=False) %}
 <div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -14,7 +14,12 @@ parent_class=None) %}
       </div>
 
       <div class="modal-body">
-        <form id="{{ modal_id }}Form" action="{{ action }}" method="POST">
+        <form
+          id="{{ modal_id }}Form"
+          action="{{ action }}"
+          method="POST"
+          data-redirect-on-success="{% if redirect %}true{% endif %}"
+        >
           {{ form.hidden_tag() }}
           <!-- {# CSRF Token #} -->
 
@@ -74,9 +79,10 @@ parent_class=None) %}
             + Add Option
           </button>
           <button type="submit" class="btn btn-success btn mt-2">Submit</button>
-          {% else %} {# For other forms (not QuestionForm), render fields as
-          before #} {% for field in form if field.widget.input_type != 'hidden'
-          %}
+
+          {% else %}
+          <!--For forms other than a QuestionForm -->
+          {% for field in form if field.widget.input_type != 'hidden' %}
 
           <div class="mb-3">
             <label class="form-label" for="{{ field.id }}"
@@ -91,8 +97,10 @@ parent_class=None) %}
             {% endif %}
           </div>
           {% endfor %}
-          <button type="submit" class="btn btn-success btn">Submit</button>
-          {% endif %} {# End of QuestionForm check #}
+          <div class="text-center">
+            <button type="submit" class="btn btn-success btn-lg">Submit</button>
+          </div>
+          {% endif %}
         </form>
       </div>
     </div>

@@ -26,32 +26,46 @@ document.addEventListener("DOMContentLoaded", function () {
       event.preventDefault();
       const formData = new FormData(form);
       const modalId = form.closest(".modal").id; // Get the modal ID dynamically
+      const shouldRedirect = form.dataset.redirectOnSuccess === 'true'; // Check for data attribute
 
       fetch(form.action, {
         method: "POST",
         body: formData,
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.message) {
-            // Show the success toast
-            showToast(data.message, 'success');
+        .then(response => {
+          if (response.ok) {
+            if (shouldRedirect) {
+              // For forms with data-redirect-on-success="true", reload to follow redirect
+              window.location.href = "/redirect";
+              showToast("Success!", 'success');
+            } else {
+              // For other forms, assume JSON success message and show toast
+              return response.json().then(data => {
+                if (data.message) {
+                  showToast(data.message, 'success');
+                } else {
+                  showToast("Success!", 'success'); // Generic success if no message in JSON
+                }
+              });
+            }
+          } else {
+            return response.json().then(data => {
+              if (data.errors) {
+                // Format error messages
+                let errorMessage = '';
+                Object.keys(data.errors).forEach((field) => {
+                  errorMessage += `${field}: ${data.errors[field].join(', ')}`;
+                });
 
-            setTimeout(() => window.location.reload(), 300);
-          } else if (data.errors) {
-            // Format error messages
-            let errorMessage = '';
-            Object.keys(data.errors).forEach((field) => {
-              errorMessage += `${field}: ${data.errors[field].join(', ')}`;
-            });
-
-            // Show the error toast
-            showToast(errorMessage, 'error');
+                // Show the error toast
+                showToast(errorMessage, 'error');
+              }
+            })
+              .catch((error) => {
+                // Show the error toast for fetch failure
+                showToast(`Error processing request. ${error}`, 'error');
+              });
           }
-        })
-        .catch((error) => {
-          // Show the error toast for fetch failure
-          showToast(`Error processing request. ${error}`, 'error');
         });
     });
   });

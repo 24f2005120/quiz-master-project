@@ -24,13 +24,28 @@
     animation: fadeIn 2.5s ease-out forwards 0.5s; /* Animation properties */
   }
 </style>
+
 <header class="bg-light shadow-sm">
   <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
       <div class="navbar-brand">Quizzer</div>
       <div class="pull-right">
-        <a class="btn btn-md" href="{{url_for('auth.signup')}}"> Sign Up </a>
-        <a class="btn btn-md" href="{{url_for('auth.login')}}"> Log In </a>
+        <button
+          type="button"
+          class="btn btn-md"
+          data-bs-toggle="modal"
+          data-bs-target="#signupModal"
+        >
+          Sign Up
+        </button>
+        <button
+          type="button"
+          class="btn btn-md"
+          data-bs-toggle="modal"
+          data-bs-target="#loginModal"
+        >
+          Log In
+        </button>
       </div>
     </div>
   </nav>
@@ -102,5 +117,10 @@
     </div>
   </section>
 </main>
-
-{% endblock %}
+{% import "macros.html" as macros %}
+<!--creates the login modal-->
+{{ macros.modal_form("loginModal", "Log In", url_for('auth.login'), auth_form,
+redirect=True) }}
+<!-- creates the sign in modal -->
+{{ macros.modal_form("signupModal", "Sign Up", url_for('auth.signup'),
+auth_form, redirect=True) }} {% endblock %}

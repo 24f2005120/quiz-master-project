@@ -1,4 +1,5 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import (Blueprint, jsonify, redirect, render_template, request,
+                   url_for)
 from flask_login import current_user, login_user, logout_user
 
 from forms import AuthForm
@@ -16,9 +17,6 @@ def login():
         return redirect("/redirect")
 
     form = AuthForm()
-
-    if request.method == "GET":
-        return render_template("login.html", form=form)
 
     if request.method == "POST" and form.validate_on_submit:
         user = select_user(form.data["username"])
@@ -45,18 +43,24 @@ def signup():
 
     form = AuthForm()
 
-    if request.method == "GET":
-        return render_template("signup.html", form=form)
-
     if request.method == "POST" and form.validate_on_submit:
         if select_user(form.data["username"]):
-            print("user already exists error")
-            return redirect("/signup")
+            return (
+                jsonify(
+                    {
+                        "errors": {
+                            "Username  Taken": [
+                                f"Please Select a username other than {form.username.data}"
+                            ]
+                        }
+                    }
+                ),
+                400,
+            )
 
-        user = User()
-        form.populate_obj(user)
-        session.add(user)
-        session.commit()
+        user = User(username=form.data["username"], password=form.data["password"])
+        db.session.add(user)
+        db.session.commit()
         login_user(user)
         return redirect("/user")
 
@@ -68,7 +72,7 @@ def already_authenticated():
 
     if not current_user.is_authenticated:
         print("this shouldn't have happened")
-        return redirect("login")
+        return redirect("/")
 
     if current_user.username == "admin":
         return redirect("/admin")
