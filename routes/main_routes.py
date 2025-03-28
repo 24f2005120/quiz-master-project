@@ -9,4 +9,4 @@ def index():
     if current_user.is_authenticated:
         return redirect("/redirect")
     if request.method == "GET":
-        return render_template("index.html")
+        return render_template("landing.html")

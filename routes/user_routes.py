@@ -33,6 +33,7 @@ def quiz(quiz_id):
     )  # Record start time in session
     return render_template("user/quiz.html", quiz=quiz)
 
+
 # NOT using wtform validation here,
 # because its kinda a pain to implement
 # and it is just mcq/msq not numeric or anything anyways,
@@ -113,10 +114,11 @@ def submit_quiz(quiz_id):
         total_score += marks_gained
 
     quiz_attempt.total_score = round(total_score, 2)
-    quiz_attempt.percentage = round(total_score*100/quiz.total_marks,2)
+    quiz_attempt.percentage = round(total_score * 100 / quiz.total_marks, 2)
 
     db.session.commit()
     return redirect(url_for("user.results", quiz_attempt_id=quiz_attempt.id))
+
 
 @user_bp.route("/past_attempts/<int:quiz_attempt_id>", methods=["GET"])
 def results(quiz_attempt_id):
@@ -124,6 +126,7 @@ def results(quiz_attempt_id):
         select(QuizAttempt).where(QuizAttempt.id == quiz_attempt_id)
     )
     return render_template("user/results.html", quiz_attempt=quiz_attempt)
+
 
 @user_bp.route("/past_attempts", methods=["GET"])
 def history():

@@ -9,6 +9,7 @@ from forms import (ChapterForm, QuestionForm, QuizForm, SubjectForm,
                    editQuestionForm)
 from models import Chapter, Option, Question, Quiz, Subject, db
 from models.models import QuizAttempt, User
+from routes.auth_routes import select_user
 from utils.db_utils import (select_chapter, select_question, select_quiz,
                             select_subject)
 
@@ -75,7 +76,8 @@ def admin_users():
 
 @admin_bp.route("/user_details/<int:user_id>")
 def user_details(user_id):
-    return render_template("admin/users.html", users=users)
+    user = select_user(user_id)
+    return render_template("admin/history.html", user=user)
 
 @admin_bp.route("/create_subject", methods=["POST"])
 def create_subject():

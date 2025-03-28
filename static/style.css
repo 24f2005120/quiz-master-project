@@ -28,3 +28,10 @@
   left: 0;
   top: 0;
 }
+.btn-primary.rounded-pill { /* Target your specific button style */
+    transition: transform 0.2s ease-in-out; /* Smooth transition for transform property */
+}
+
+.btn-primary.rounded-pill:hover {
+    transform: scale(1.05); /* Slightly scale up on hover */
+}

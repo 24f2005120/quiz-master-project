@@ -1,0 +1,46 @@
+{% extends "base.html" %} {% block title %} Quiz History {% endblock %} {% block
+body %} {% include "admin/nav.html" %}
+<div class="container py-5">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-bold">Quiz History</h2>
+  </div>
+
+  {% if user.quiz_attempts %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for quiz_attempt in user.quiz_attempts %}
+    <div class="col">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-light py-3">
+          <h5 class="card-title fw-semibold mb-0">
+            {{ quiz_attempt.quiz.quiz_name }}
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <dl class="row">
+            <dt class="col-sm-4">Score:</dt>
+            <dd class="col-sm-8">
+              {{ quiz_attempt.total_score }}/{{ quiz_attempt.quiz.total_marks }}
+            </dd>
+
+            <dt class="col-sm-4">Percentage:</dt>
+            <dd class="col-sm-8">{{ quiz_attempt.percentage }}%</dd>
+          </dl>
+          <a
+            href="{{ url_for('user.results', quiz_attempt_id=quiz_attempt.id) }}"
+            class="btn btn-primary mt-3"
+            >View Details</a
+          >
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <p class="text-muted mb-0">No quiz history found for this user.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

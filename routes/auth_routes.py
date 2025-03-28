@@ -1,18 +1,12 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import current_user, login_user, logout_user
-from sqlalchemy import select
 
 from forms import AuthForm
 from models import db
 from models.models import User
-
-session = db.session
+from utils.db_utils import select_user
 
 auth_bp = Blueprint("auth", __name__)
-
-
-def select_user(username):
-    return session.scalar(select(User).where(User.username == username))
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])

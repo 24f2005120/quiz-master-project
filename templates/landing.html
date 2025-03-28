@@ -1,0 +1,106 @@
+{% extends 'base.html' %} {% block title %} Quizzer - Fun and Engaging Quizzes
+{% endblock %} {% block body %}
+<style>
+  /* just some fun animations and eyecandy */
+  .hero-section-animate {
+    opacity: 0; /* Initially hidden */
+    animation: fadeIn 1s ease-out forwards 0.5s; /* Animation properties */
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(
+        20px
+      ); /* Optional: Slide up slightly while fading in */
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .feature-card-animate {
+    opacity: 0;
+    animation: fadeIn 2.5s ease-out forwards 0.5s; /* Animation properties */
+  }
+</style>
+<header class="bg-light shadow-sm">
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-brand">Quizzer</div>
+      <div class="pull-right">
+        <a class="btn btn-md" href="{{url_for('auth.signup')}}"> Sign Up </a>
+        <a class="btn btn-md" href="{{url_for('auth.login')}}"> Log In </a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main class="container py-5">
+  <section class="text-center hero-section-animate">
+    <h2 class="display-4 fw-bold mb-3">Test Your Knowledge with Quizzer!</h2>
+    <p class="lead mb-4">
+      Welcome to my quiz app,<br />
+      This font is a bit too thin for my liking
+    </p>
+
+    <a
+      href="{{url_for('auth.signup')}}"
+      class="btn btn-primary btn-lg rounded-pill"
+    >
+      Get Started
+    </a>
+  </section>
+
+  <section class="mt-5 text-center">
+    <div class="row justify-content-center">
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm feature-card-animate">
+          <div class="card-body">
+            <i
+              class="bi bi-list-task text-primary mb-3"
+              style="font-size: 2.5rem"
+            ></i>
+            <h4 class="card-title fw-semibold">Variety of Quizzes</h4>
+            <p class="card-text">
+              Explore quizzes on a wide range of topics, from history to pop
+              culture.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm feature-card-animate">
+          <div class="card-body">
+            <i
+              class="bi bi-emoji-laughing text-primary mb-3"
+              style="font-size: 2.5rem"
+            ></i>
+            <h4 class="card-title fw-semibold">Fun and Engaging</h4>
+            <p class="card-text">
+              Quizzes designed to be enjoyable and keep you entertained while
+              you learn.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm feature-card-animate">
+          <div class="card-body">
+            <i
+              class="bi bi-lightbulb text-primary mb-3"
+              style="font-size: 2.5rem"
+            ></i>
+            <h4 class="card-title fw-semibold">Learn Something New</h4>
+            <p class="card-text">
+              Expand your knowledge and discover interesting facts through our
+              quizzes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% endblock %}
