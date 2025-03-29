@@ -1,6 +1,0 @@
-<form action="{{request.url}}" method="POST">
-  {% for field in form if field.widget.input_type != 'hidden' %}
-  <div>{{field.name}} : {{field}}</div>
-  {% endfor %}
-  <input type="submit" name="submit" />
-</form>
