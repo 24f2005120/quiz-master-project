@@ -2,7 +2,7 @@ from datetime import date, datetime, time
 from typing import Annotated, List, Optional
 
 from flask_login import UserMixin
-from sqlalchemy import Boolean, ForeignKey, ForeignKeyConstraint
+from sqlalchemy import Boolean, Date, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import db

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta, timezone
 
 from flask import (Blueprint, app, jsonify, redirect, render_template, request,
                    session, url_for)
@@ -21,7 +21,8 @@ def user_required():
 
 @user_bp.route("/", methods=["GET"])
 def home():
-    upcoming_quizzes = db.session.scalars(select(Quiz))
+    upcoming_quizzes = db.session.scalars(select(Quiz).where(Quiz.date >= date.today()))
+    quiz = select_quiz(2)
     return render_template("user/home.html", upcoming_quizzes=upcoming_quizzes)
 
 

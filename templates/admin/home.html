@@ -4,7 +4,7 @@ block body %} {% include "admin/nav.html" %}
 <script src="{{ url_for('static', filename='admin_scripts.js') }}"></script>
 
 <div class="container mt-4">
-  <div class="container mt-4">
+  <div class="container mt-5 mb-4">
     <div class="d-flex justify-content-between align-items-center">
       <h2 class="mb-3">Subjects</h2>
       <input
@@ -198,17 +198,15 @@ block body %} {% include "admin/nav.html" %}
     </div>
     {% endfor %}
   </div>
-
-  {% import "macros.html" as macros %} {{
-  macros.modal_form("createSubjectModal", "Create New Subject",
-  url_for('admin.create_subject'), subject_form) }} {{
-  macros.modal_form("editSubjectModal", "Edit Subject",
-  url_for('admin.edit_subject', subject_id=0), subject_form )}} {{
-  macros.modal_form("createChapterModal", "Create New Chapter",
-  url_for('admin.create_chapter', subject_id=0), chapter_form) }} {{
-  macros.modal_form("editChapterModal", "Edit Chapter",
-  url_for('admin.edit_subject', subject_id=0,chapter_id=0), chapter_form )}} {{
-  macros.modal_form("createQuizModal", "Create Quiz",
-  url_for('admin.create_quiz', subject_id=0,chapter_id=0), quiz_form)}} {%
-  endblock %}
 </div>
+
+{% import "macros.html" as macros %} {{ macros.modal_form("createSubjectModal",
+"Create New Subject", url_for('admin.create_subject'), subject_form) }} {{
+macros.modal_form("editSubjectModal", "Edit Subject",
+url_for('admin.edit_subject', subject_id=0), subject_form )}} {{
+macros.modal_form("createChapterModal", "Create New Chapter",
+url_for('admin.create_chapter', subject_id=0), chapter_form) }} {{
+macros.modal_form("editChapterModal", "Edit Chapter",
+url_for('admin.edit_subject', subject_id=0,chapter_id=0), chapter_form )}} {{
+macros.modal_form("createQuizModal", "Create Quiz", url_for('admin.create_quiz',
+subject_id=0,chapter_id=0), quiz_form)}} {% endblock %}
