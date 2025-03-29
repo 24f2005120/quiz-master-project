@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: Quiz API
+  version: 1.0.0
+paths:
+  /subjects:
+    get:
+      summary: Get all subjects
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subject"
+  /subjects/{subject_id}/chapters:
+    get:
+      summary: Get chapters for a specific subject
+      parameters:
+        - in: path
+          name: subject_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the subject
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Chapter"
+        "404":
+          description: Subject not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /subjects/{subject_id}/chapters/{chapter_id}/quizzes:
+    get:
+      summary: Get quizzes for a specific chapter within a subject
+      parameters:
+        - in: path
+          name: subject_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the subject
+        - in: path
+          name: chapter_id
+          required: true
+          schema:
+            type: integer
+          description: ID of the chapter
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Quiz"
+        "404":
+          description: Chapter not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Subject:
+      type: object
+      properties:
+        subject_id:
+          type: integer
+          description: The unique identifier for the subject.
+        subject_name:
+          type: string
+          description: The name of the subject.
+        description:
+          type: string
+          nullable: true
+          description: A brief description of the subject.
+    Chapter:
+      type: object
+      properties:
+        subject_id:
+          type: integer
+          description: The ID of the subject this chapter belongs to.
+        chapter_id:
+          type: integer
+          description: The unique identifier for the chapter.
+        chapter_name:
+          type: string
+          description: The name of the chapter.
+        description:
+          type: string
+          nullable: true
+          description: A brief description of the chapter.
+    Quiz:
+      type: object
+      properties:
+        quiz_id:
+          type: integer
+          description: The unique identifier for the quiz.
+        quiz_name:
+          type: string
+          description: The name of the quiz.
+        chapter_id:
+          type: integer
+          description: The ID of the chapter this quiz belongs to.
+        subject_id:
+          type: integer
+          description: The ID of the subject this quiz belongs to.
+        date:
+          type: string
+          format: date
+          nullable: true
+          description: The date of the quiz.
+        duration:
+          type: integer
+          nullable: true
+          description: The duration of the quiz in minutes or other unit.
+        remarks:
+          type: string
+          nullable: true
+          description: Any remarks or notes about the quiz.
+        total_marks:
+          type: integer
+          nullable: true
+          description: The total marks for the quiz.
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message describing the issue.

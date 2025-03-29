@@ -1,10 +1,6 @@
 from flask import Blueprint, jsonify
 
-# Assuming your models are in a file named models.py in the same directory
-# and your db object is already configured as shown in the problem description
-# from . import db # if you are in a package, otherwise adjust import
-from models import (Chapter, Quiz,  # Assuming your models are in models.py
-                    Subject, db)
+from models import Chapter, Quiz, Subject, db
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
