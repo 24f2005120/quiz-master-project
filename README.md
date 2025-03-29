@@ -19,3 +19,10 @@ default admin details:
 username:admin
 password:password
 
+## What it looks like
+![image](https://github.com/user-attachments/assets/ddbeac79-3307-48c6-9af9-5e543ca39179)
+![image](https://github.com/user-attachments/assets/5483fddf-0581-4302-92b9-97e0cfcb67f5)
+![image](https://github.com/user-attachments/assets/d1efb0f1-bcd3-4d96-974a-2e933ae7296d)
+![image](https://github.com/user-attachments/assets/f65e53f3-52ae-4501-a034-b4dd16c42fc6)
+![image](https://github.com/user-attachments/assets/499b1d90-c364-486c-abd3-4cd379109935)
+![image](https://github.com/user-attachments/assets/918fdfcf-5b09-45a9-846a-b762b1175c7f)
