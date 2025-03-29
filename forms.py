@@ -29,7 +29,7 @@ class QuizForm(FlaskForm):
 
 class OptionForm(FlaskForm):
     text = TextAreaField("Option Text", validators=[DataRequired()])
-    is_correct = BooleanField("Is Correct")
+    is_correct = BooleanField("Is Correct", default=False)
 
 
 class QuestionForm(FlaskForm):

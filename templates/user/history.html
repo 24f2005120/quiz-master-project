@@ -18,13 +18,13 @@ body %} {% include "user/nav.html" %}
         </div>
         <div class="card-body p-4">
           <dl class="row">
-            <dt class="col-sm-4">Score:</dt>
-            <dd class="col-sm-8">
+            <dt class="col-sm-6">Score:</dt>
+            <dd class="col-sm-6">
               {{ quiz_attempt.total_score }}/{{ quiz_attempt.quiz.total_marks }}
             </dd>
 
-            <dt class="col-sm-4">Percentage:</dt>
-            <dd class="col-sm-8">{{ quiz_attempt.percentage }}%</dd>
+            <dt class="col-sm-6">Percentage:</dt>
+            <dd class="col-sm-6">{{ quiz_attempt.percentage }}%</dd>
           </dl>
           <a
             href="{{ url_for('user.results', quiz_attempt_id=quiz_attempt.id) }}"

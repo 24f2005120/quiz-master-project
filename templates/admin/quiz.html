@@ -93,7 +93,40 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
               <div class="d-flex align-items-center gap-2 w-100">
                 <span class="fw-semibold">Q{{ loop.index }}.</span>
                 <span class="flex-grow-1">{{ question.text }}</span>
-                <span class="badge bg-secondary">{{ question.marks }} pts</span>
+                <span>
+                  <a
+                    class="btn btn-outline-primary btn px-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editQuestionModal"
+                    data-bs-tooltip="tooltip"
+                    title="Edit question"
+                    onclick='updateModalFormAction(
+                    "{{ url_for("admin.edit_question", quiz_id=quiz.quiz_id, question_id=question.question_id) }}",
+                    "editQuestionModal",
+                    {{ 
+                      {
+                        "text": question.text,
+                        "marks": question.marks,
+                        }
+                    }}
+                  )'
+                  >
+                    <i class="bi bi-pencil-square me-1"></i>
+                  </a>
+
+                  <a
+                    class="btn btn-outline-danger btn px-3"
+                    data-bs-tooltip="tooltip"
+                    title="Delete question"
+                    onclick="handleDelete('{{ url_for('admin.edit_question', quiz_id=quiz.quiz_id, question_id=question.question_id) }}', '{{ question.text }}')"
+                  >
+                    <i class="bi bi-trash me-1"></i>
+                  </a>
+                  <a class="btn btn-outline-secondary"
+                    >{{ question.marks }} pts</a
+                  >
+                </span>
+                <span class="space"> </span>
               </div>
             </button>
           </h2>
@@ -105,12 +138,13 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
             <div class="accordion-body pt-0">
               <!-- Choices Display -->
               {% if question.options %}
-              <div class="mt-3">
-                <p class="fw-medium mb-2">Options:</p>
+              <div class="mt-0">
                 <ul class="list-group list-group-flush">
                   {% for option in question.options %}
-                  <li class="list-group-item border-0 py-1">
-                    <span class="d-flex align-items-center gap-2">
+                  <li
+                    class="list-group-item border-bottom py-2 d-flex align-items-center justify-content-between"
+                  >
+                    <div class="d-flex align-items-center gap-2">
                       {% if option.is_correct %}
                       <span class="badge bg-success rounded-circle p-1">
                         <i class="bi bi-check"></i>
@@ -121,46 +155,43 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
                       </span>
                       {% endif %}
                       <span>{{ option.text }}</span>
-                    </span>
+                    </div>
+                    <div>
+                      <a
+                        class="btn btn-sm btn-outline-primary me-1"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editOptionModal"
+                        data-bs-tooltip="tooltip"
+                        title="Edit option"
+                        onclick='updateModalFormAction(
+                                "{{ url_for("admin.edit_option", option_id=option.option_id) }}",
+                                "editOptionModal",
+                                {{
+                                  {
+                                    "text": option.text,
+                                    "is_correct": option.is_correct,
+                                  } | tojson
+                                }}
+                              )'
+                      >
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                      <a
+                        class="btn btn-sm btn-outline-danger"
+                        data-bs-tooltip="tooltip"
+                        title="Delete option"
+                        onclick="handleDelete('{{ url_for('admin.edit_option', option_id=option.option_id) }}', '{{ option.text }}')"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </div>
                   </li>
                   {% endfor %}
                 </ul>
               </div>
               {% else %}
-              <p class="text-muted mt-3">No options available.</p>
+              <p class="text-muted mt-3">No options found.</p>
               {% endif %}
-
-              <!-- Question Actions -->
-              <div class="mt-4 d-flex gap-2">
-                <button
-                  class="btn btn-outline-primary btn px-3"
-                  data-bs-toggle="modal"
-                  data-bs-target="#editQuestionModal"
-                  data-bs-tooltip="tooltip"
-                  title="Edit question"
-                  onclick='updateModalFormAction(
-                    "{{ url_for("admin.edit_question", quiz_id=quiz.quiz_id, question_id=question.question_id) }}",
-                    "editQuestionModal",
-                    {{ 
-                      {
-                        "text": question.text,
-                        "marks": question.marks,
-                        }
-                    }}
-                  )'
-                >
-                  <i class="bi bi-pencil-square me-1"></i> Edit
-                </button>
-
-                <button
-                  class="btn btn-outline-danger btn px-3"
-                  data-bs-tooltip="tooltip"
-                  title="Delete question"
-                  onclick="handleDelete('{{ url_for('admin.edit_question', quiz_id=quiz.quiz_id, question_id=question.question_id) }}', '{{ question.text }}')"
-                >
-                  <i class="bi bi-trash me-1"></i> Delete
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -182,4 +213,5 @@ macros.modal_form("createQuestionModal", "Add Question",
 url_for('admin.create_question', quiz_id=quiz.quiz_id), question_form) }} {{
 macros.modal_form("editQuestionModal", "Edit Question",
 url_for('admin.edit_question', quiz_id=quiz.quiz_id, question_id=0),
-edit_question_form) }} {% endblock %}
+edit_question_form) }} {{ macros.modal_form("editOptionModal", "Edit Option",
+url_for('admin.edit_option', option_id=0), option_form) }} {% endblock %}

@@ -5,12 +5,12 @@ from flask_login import current_user
 from flask_login.utils import current_app
 from sqlalchemy import func, select
 
-from forms import (ChapterForm, QuestionForm, QuizForm, SubjectForm,
+from forms import (ChapterForm, OptionForm, QuestionForm, QuizForm, SubjectForm,
                    editQuestionForm)
 from models import Chapter, Option, Question, Quiz, Subject, db
 from models.models import QuizAttempt, User
 from routes.auth_routes import select_user
-from utils.db_utils import (select_chapter, select_question, select_quiz,
+from utils.db_utils import (select_chapter, select_option, select_question, select_quiz,
                             select_subject)
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -223,6 +223,7 @@ def edit_quiz(quiz_id):
         quiz_form=QuizForm(),
         question_form=QuestionForm(),
         edit_question_form=editQuestionForm(),
+        option_form=OptionForm()
     )
 
 def recalculate_quiz_score(quiz):
@@ -270,7 +271,7 @@ def create_question(quiz_id):
 
         db.session.commit()
         recalculate_quiz_score(quiz)
-        return jsonify({"message": "Successfully updated question"})    # GET request should not be directly accessed, modal form is used.
+        return jsonify({"message": "Successfully created question"})    # GET request should not be directly accessed, modal form is used.
 
     return jsonify({"errors": ["GET method not allowed for this route"]}), 405
 
@@ -304,7 +305,25 @@ def edit_question(quiz_id, question_id):
         recalculate_quiz_score(quiz)
         return jsonify({"message": "Successfully deleted question"})
 
-    # GET request to render edit form
-    form = QuestionForm(obj=question) # Populate form for editing
-    return render_template("admin/quiz.html", quiz=quiz, quiz_form=QuizForm(obj=quiz), question_form=form, quiz_id=quiz_id, question_id=question_id) # Re-render quiz page, adjust if needed
+@admin_bp.route("/option/<int:option_id>", methods=["POST", "DELETE"])
+def edit_option(option_id):
+    option = select_option(option_id)
+
+    if request.method == "POST":
+        form = OptionForm(request.form, obj=option)
+        if not form.validate_on_submit():
+            return jsonify({"errors": form.errors}),400
+        form.populate_obj(option)
+        db.session.commit()
+        return jsonify({"message":f"Successfully updated option {option.option_id}"})
+
+    if request.method == "DELETE":
+        question = option.question
+        correct_options = [opt for opt in question.options if opt.is_correct]
+        if len(correct_options) == 1:
+            return jsonify({"errors":["No other correct options exist, please mark or create another correct option"]}),400
+        
+        db.session.delete(option)
+        db.session.commit()
+        return jsonify({"message":f"Successfully deleted option {option.text}"})
 

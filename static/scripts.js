@@ -43,6 +43,9 @@ document.addEventListener("DOMContentLoaded", function () {
               return response.json().then(data => {
                 if (data.message) {
                   showToast(data.message, 'success');
+                  setTimeout(() => {
+                    window.location.reload()
+                  }, 300);
                 } else {
                   showToast("Success!", 'success'); // Generic success if no message in JSON
                 }
