@@ -212,7 +212,6 @@ def edit_quiz(quiz_id):
         form = QuizForm()
         if not form.validate_on_submit():
             return jsonify({"errors":form.errors}),400
-        quiz = select_quiz(quiz_id)
         form.populate_obj(quiz)
         db.session.commit()
         return jsonify({"message":"Succesfully edited quiz details"})
@@ -299,7 +298,6 @@ def edit_question(quiz_id, question_id):
         return jsonify({"message": "Successfully updated question"})
 
     if request.method == "DELETE":
-        recalculate_quiz_score(quiz)
         db.session.delete(question)
         db.session.commit()
         recalculate_quiz_score(quiz)
@@ -320,9 +318,8 @@ def edit_option(option_id):
     if request.method == "DELETE":
         question = option.question
         correct_options = [opt for opt in question.options if opt.is_correct]
-        if len(correct_options) == 1:
+        if len(correct_options) == 1 and option.is_correct:
             return jsonify({"errors":["No other correct options exist, please mark or create another correct option"]}),400
-        
         db.session.delete(option)
         db.session.commit()
         return jsonify({"message":f"Successfully deleted option {option.text}"})

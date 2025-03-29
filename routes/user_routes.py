@@ -22,7 +22,6 @@ def user_required():
 @user_bp.route("/", methods=["GET"])
 def home():
     upcoming_quizzes = db.session.scalars(select(Quiz).where(Quiz.date >= date.today()))
-    quiz = select_quiz(2)
     return render_template("user/home.html", upcoming_quizzes=upcoming_quizzes)
 
 
@@ -54,11 +53,12 @@ def submit_quiz(quiz_id):
         int(time_taken.total_seconds()) // 60
     )  # everything going to be stored in minutes in the backend
     frontend_time = int(request.form.get("time_taken"))
-
+    # prevents eggregious time_taken manipulation hopefully
+    # 5 - number of minutes of tolerance for error
     if not (
         time_taken - 5 < frontend_time < time_taken + 5
         or time_taken > quiz.duration + 5
-    ):  # prevents eggregious time_taken manipulation hopefully
+    ): 
         raise TimeoutError
 
     quiz_attempt = QuizAttempt(
@@ -92,6 +92,7 @@ def submit_quiz(quiz_id):
 
         marks_for_q = question.marks
         correctness = 0
+        # not optimal solution
         correct_opts = db.session.scalar(
             select(func.count())
             .select_from(Option)
