@@ -81,7 +81,10 @@ endblock %} {% block body %} {% include "admin/nav.html" %}
       <div class="accordion accordion-flush" id="questionsAccordion">
         {% for question in quiz.questions %}
         <div class="accordion-item border mb-2 rounded">
-          <h2 class="accordion-header" id="heading{{ question.question_id }}">
+          <h2
+            class="accordion-header mt-1"
+            id="heading{{ question.question_id }}"
+          >
             <button
               class="accordion-button collapsed py-3"
               type="button"
